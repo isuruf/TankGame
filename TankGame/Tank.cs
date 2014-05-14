@@ -11,6 +11,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.GamerServices;
+using Microsoft.Xna.Framework.Media;
+using System.Diagnostics;
 #endregion
 
 namespace TankGame
@@ -28,6 +31,7 @@ namespace TankGame
         public double lastBulletTime = 0;
         public Vector3 tankPosition = new Vector3(8.5f, 0, -3.5f);
         public Quaternion tankRotation = Quaternion.Identity;
+        float health = 4;
 
 
         // Shortcut references to the bones that we are going to animate.
@@ -127,6 +131,11 @@ namespace TankGame
 
         #endregion
 
+        public Tank(Vector3 position, Quaternion rotation, float health){
+            this.tankPosition = position;
+            this.tankRotation = rotation;
+            this.health = health;
+        }
 
         /// <summary>
         /// Loads the tank model.
@@ -167,8 +176,30 @@ namespace TankGame
         /// <summary>
         /// Draws the tank model, using the current animation settings.
         /// </summary>
-        public void Draw(Matrix view, float scale)
+        public void Draw(Vector3 camera, Vector3 camup, Matrix view, float scale, float barScale)
         {
+            
+            
+            //Vector3 length = Vector3.Normalize(Vector3.Transform(camera-position, Matrix.CreateFromQuaternion(new Quaternion(camup,MathHelper.PiOver2))));
+            Vector3 length = Vector3.Normalize(Vector3.Cross(camera, camup));
+            Vector3 v = Vector3.Normalize(Vector3.Cross(length, camup));
+            //Debug.WriteLine(length2+" and "+length);
+            //length = length2;
+            length *= 0.05f * barScale;
+            Vector3 height = Vector3.Normalize(camup) * 0.01f * barScale;
+            Debug.WriteLine("positions "+tankPosition+" "+camera);
+            Vector3 position = tankPosition + v * 0.23f * barScale +camup * 0.22f * scale;
+            scale *= 0.0005f;
+            float image = health + 2;
+            float imagesInTexture = 11;
+            Game1.verticesList.Add(new VertexPositionNormalTexture(position + length + height, new Vector3(0, 0, 1), new Vector2(image / imagesInTexture, 1)));
+            Game1.verticesList.Add(new VertexPositionNormalTexture(position + length - height, new Vector3(0, 0, 1), new Vector2((image) / imagesInTexture, 0)));
+            Game1.verticesList.Add(new VertexPositionNormalTexture(position - length + height, new Vector3(0, 0, 1), new Vector2((image +1) / imagesInTexture, 1)));
+
+            Game1.verticesList.Add(new VertexPositionNormalTexture(position + length - height, new Vector3(0, 0, 1), new Vector2((image) / imagesInTexture, 0)));
+            Game1.verticesList.Add(new VertexPositionNormalTexture(position - length - height, new Vector3(0, 0, 1), new Vector2((image + 1) / imagesInTexture, 0)));
+            Game1.verticesList.Add(new VertexPositionNormalTexture(position - length + height, new Vector3(0, 0, 1), new Vector2((image + 1) / imagesInTexture, 1)));
+       
             Matrix projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1, 0.2f, 10000.0f);
             Matrix world = Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(tankRotation) * Matrix.CreateTranslation(tankPosition);
             
