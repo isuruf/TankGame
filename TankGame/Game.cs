@@ -45,6 +45,7 @@ namespace TankGame
         Viewport[] viewports = new Viewport[3];
         float speed = 1.0f;
         public double lastCommandTime = 0;
+        public static float imagesInTexture = 16;
 
         int[,] floorPlan;
         int[] buildingHeights = new int[] {0,2,2};
@@ -196,7 +197,7 @@ namespace TankGame
         private void SetUpVertices()
         {
             int differentBuildings = buildingHeights.Length - 1;
-            float imagesInTexture = 11;
+            
 
             int cityWidth = floorPlan.GetLength(0);
             int cityLength = floorPlan.GetLength(1);
@@ -521,6 +522,7 @@ namespace TankGame
             effect.Parameters["xEnableLighting"].SetValue(true);
             effect.Parameters["xLightDirection"].SetValue(lightDirection);
             effect.Parameters["xAmbient"].SetValue(0.5f);
+            device.BlendState = BlendState.NonPremultiplied;
 
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {

@@ -190,8 +190,8 @@ namespace TankGame
             Debug.WriteLine("positions "+tankPosition+" "+camera);
             Vector3 position = tankPosition + v * 0.23f * barScale +camup * 0.22f * scale;
             scale *= 0.0005f;
-            float image = health + 2;
-            float imagesInTexture = 11;
+            float image = health + 12;
+            float imagesInTexture = Game1.imagesInTexture;
             Game1.verticesList.Add(new VertexPositionNormalTexture(position + length + height, new Vector3(0, 0, 1), new Vector2(image / imagesInTexture, 1)));
             Game1.verticesList.Add(new VertexPositionNormalTexture(position + length - height, new Vector3(0, 0, 1), new Vector2((image) / imagesInTexture, 0)));
             Game1.verticesList.Add(new VertexPositionNormalTexture(position - length + height, new Vector3(0, 0, 1), new Vector2((image +1) / imagesInTexture, 1)));
