@@ -12,7 +12,7 @@ namespace TankGame
     {
         public static Model medikitModel;
         public Vector3 position;
-
+        public int x,y;
         public float speed;
         public float angle = 0;
         public Quaternion initRotation = new Quaternion(1, 0, 0, (float)Math.Cos(7 * MathHelper.Pi / 12));
@@ -28,6 +28,13 @@ namespace TankGame
 
             this.speed = speed;
             //            this.player = player;
+        }
+        public medikit(int x, int y)
+        {
+            this.position = new Vector3(x+0.5f,0.2f,-y-0.5f);
+            this.speed = MathHelper.ToRadians(6f);
+            this.x = x;
+            this.y = y;
         }
         public void Draw(Matrix view, float scale)
         {

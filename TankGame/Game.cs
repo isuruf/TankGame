@@ -162,10 +162,10 @@ namespace TankGame
 
             tankBrain.initGrid();
 
-            tank = new Tank(new Vector3(8.5f, 0, -10.5f),-Quaternion.Identity,1);
+            tank = new Tank(5,3,0);
             for (int i = 0; i < 4; i++)
             {
-                tankArr[i] = new Tank(new Vector3(i+7.5f, 0,-i -2.5f), Quaternion.Identity,1/(i+1f));
+                tankArr[i] = new Tank(i,i,i);
             }
             tankArr[4]=tank;
             coin.coinModel = Content.Load<Model>("TyveKrone");
@@ -173,38 +173,18 @@ namespace TankGame
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, device.Viewport.AspectRatio, 0.05f, 10000.0f);
                 
 
-            LoadFloorPlan();
+            //LoadFloorPlan();
             SetUpVertices();
-            SetUpBoundingBoxes();
+            //SetUpBoundingBoxes();
             coinList.Add(new coin(new Vector3(5.5f, .2f, -3.5f), MathHelper.ToRadians(6f)));
             medikitList.Add(new medikit(new Vector3(6.5f, .3f, -3.5f), MathHelper.ToRadians(6f)));
         }
         private void LoadFloorPlan()
         {
-            floorPlan = new int[,]
-             {
-                 {1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-                 {1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-                 {1,1,1,1,0,0,0,1,1,0,0,1,1,1},
-                 {1,1,1,1,0,0,0,1,0,0,0,1,1,1},
-                 {1,1,0,1,1,0,1,1,0,0,0,0,1,1},
-                 {1,1,0,0,0,0,0,0,0,0,1,0,1,1},
-                 {1,1,0,0,0,0,0,0,0,0,0,0,1,1},
-                 {1,1,0,0,0,0,0,0,0,0,0,0,1,1},
-                 {1,1,0,0,0,0,0,0,0,0,0,0,1,1},
-                 {1,1,0,0,0,0,0,0,0,0,0,0,1,1},
-                 {1,1,1,0,0,0,1,0,0,0,0,0,1,1},
-                 {1,1,0,0,0,0,0,0,0,0,0,0,1,1},
-                 {1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-                 {1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-             };
-            /*
-            Random random = new Random();
-            int differentBuildings = buildingHeights.Length - 1;
-            for (int x = 0; x < floorPlan.GetLength(0); x++)
-                for (int y = 0; y < floorPlan.GetLength(1); y++)
-                    if (floorPlan[x, y] == 1)
-                        floorPlan[x, y] = random.Next(differentBuildings) + 1;*/
+            grid = new int[10,10];
+            for(int i=0;i<10;i++)
+                for(int j=0;j<10;j++)
+                    grid[i,j]=0;
         }
 
         private void SetUpVertices()
@@ -212,16 +192,21 @@ namespace TankGame
             int differentBuildings = buildingHeights.Length - 1;
             
 
-            int cityWidth = floorPlan.GetLength(0);
-            int cityLength = floorPlan.GetLength(1);
+            int cityWidth = grid.GetLength(0);
+            int cityLength = grid.GetLength(1);
 
 
             buildingVerticesList = new List<VertexPositionNormalTexture>();
-            for (int x = 0; x < cityWidth; x++)
+            for (int x = -2; x < cityWidth+2; x++)
             {
-                for (int z = 0; z < cityLength; z++)
+                for (int z = -2; z < cityLength+2; z++)
                 {
-                    int currentbuilding = floorPlan[x, z];
+                    
+                    int currentbuilding ;
+                    if(x<0||x>=cityWidth||z<0||z>=cityLength)
+                        currentbuilding=1;
+                    else
+                        currentbuilding= grid[x, z];
                     int currentheight = 1;
                     if (currentbuilding == 0 || currentbuilding == 3)
                     {
@@ -560,6 +545,7 @@ namespace TankGame
         {
             for (int i = 0; i < 5; i++)
             {
+                if(tankArr[i]!=null)
                 tankArr[i].Draw(camera, camup, view, scale, barScale);
             }
         }

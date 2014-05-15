@@ -14,6 +14,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Media;
 using System.Diagnostics;
+using System;
 #endregion
 
 namespace TankGame
@@ -31,7 +32,10 @@ namespace TankGame
         public double lastBulletTime = 0;
         public Vector3 tankPosition = new Vector3(8.5f, 0, -3.5f);
         public Quaternion tankRotation = Quaternion.Identity;
-        float health = 4;
+        public float health;
+        public int direction;
+        public int x;
+        public int y;
 
 
         // Shortcut references to the bones that we are going to animate.
@@ -131,10 +135,20 @@ namespace TankGame
 
         #endregion
 
-        public Tank(Vector3 position, Quaternion rotation, float health){
+        public Tank(Vector3 position, Quaternion rotation, float health, int direction){
             this.tankPosition = position;
             this.tankRotation = rotation;
             this.health = health;
+            this.direction = direction;
+        }
+        public Tank(int x,int y, int direction)
+        {
+            this.tankPosition = new Vector3(x+0.5f,0,-y-0.5f);
+            this.tankRotation = Quaternion.CreateFromAxisAngle(Vector3.UnitY, direction * MathHelper.PiOver2);
+            this.health = 1;
+            this.direction = direction;
+            this.x = x;
+            this.y = y;
         }
 
         /// <summary>

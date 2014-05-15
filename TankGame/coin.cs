@@ -16,7 +16,6 @@ namespace TankGame
         public float speed;
         public float angle=0;
         public Quaternion initRotation = new Quaternion(1, 0, 0, (float)Math.Cos(7*MathHelper.Pi/12));
- //       public int player;
 
         public void MoveForward()
         {
@@ -25,10 +24,14 @@ namespace TankGame
         public coin(Vector3 position, float speed)
         {
             this.position = position;
-
             this.speed = speed;
-//            this.player = player;
         }
+        public coin(int x, int y, float speed)
+        {
+            this.position = new Vector3(x+0.5f,0.2f,-y-0.5f);
+            this.speed = MathHelper.ToRadians(6f);
+        }
+
         public void Draw(Matrix view,float scale)
         {
             Matrix[] boneTransforms = new Matrix[coinModel.Bones.Count];
