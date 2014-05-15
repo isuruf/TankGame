@@ -19,6 +19,8 @@ using System.Linq;
 using System.Diagnostics;
 using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Media;
+using System.Threading;
+using System.Configuration;
 #endregion
 
 namespace TankGame
@@ -70,6 +72,9 @@ namespace TankGame
         List<coin> coinList = new List<coin>();
         List<medikit> medikitList = new List<medikit>();
 
+        TankGameBrain tankBrain;
+        private Thread processThread;
+        public static String command = "DOWN#";
         #endregion
 
         #region Initialization
@@ -134,6 +139,15 @@ namespace TankGame
         /// </summary>
         protected override void LoadContent()
         {
+            tankBrain = new TankGameBrain();
+
+            processThread = new Thread(new ThreadStart(tankBrain.process));
+            processThread.Priority = ThreadPriority.Normal;
+            tankBrain.startGame();
+            tankBrain.waitGameStarted();
+            processThread.Start();
+
+
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             device = graphics.GraphicsDevice;
@@ -164,26 +178,20 @@ namespace TankGame
         {
             floorPlan = new int[,]
              {
-                 {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-                 {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-                 {1,1,0,1,1,0,0,0,1,1,0,0,1,1,1},
-                 {1,1,0,1,1,0,0,0,1,0,0,0,1,1,1},
-                 {1,1,0,0,1,1,0,1,1,0,0,0,0,1,1},
-                 {1,1,0,0,0,0,0,0,0,0,0,1,0,1,1},
-                 {1,1,0,0,0,0,0,0,0,0,0,0,0,1,1},
-                 {1,1,0,0,0,0,0,0,0,0,0,0,0,1,1},
-                 {1,1,0,0,0,0,0,0,0,0,0,0,0,1,1},
-                 {1,1,0,0,0,0,0,0,0,0,0,0,0,1,1},
-                 {1,1,1,1,0,0,0,1,0,0,0,0,0,1,1},
-                 {1,1,1,0,0,0,0,0,0,0,0,0,0,1,1},
-                 {1,1,0,3,0,0,2,0,0,0,0,0,0,1,1},
-                 {1,1,0,0,0,0,0,0,0,0,0,0,0,1,1},
-                 {1,1,0,0,0,1,0,0,0,0,0,0,0,1,1},
-                 {1,1,0,0,0,1,0,0,0,1,0,0,0,1,1},
-                 {1,1,1,0,0,0,0,0,0,1,0,0,0,1,1},
-                 {1,1,1,1,0,0,0,0,1,1,0,0,0,1,1},
-                 {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-                 {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+                 {1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+                 {1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+                 {1,1,1,1,0,0,0,1,1,0,0,1,1,1},
+                 {1,1,1,1,0,0,0,1,0,0,0,1,1,1},
+                 {1,1,0,1,1,0,1,1,0,0,0,0,1,1},
+                 {1,1,0,0,0,0,0,0,0,0,1,0,1,1},
+                 {1,1,0,0,0,0,0,0,0,0,0,0,1,1},
+                 {1,1,0,0,0,0,0,0,0,0,0,0,1,1},
+                 {1,1,0,0,0,0,0,0,0,0,0,0,1,1},
+                 {1,1,0,0,0,0,0,0,0,0,0,0,1,1},
+                 {1,1,1,0,0,0,1,0,0,0,0,0,1,1},
+                 {1,1,0,0,0,0,0,0,0,0,0,0,1,1},
+                 {1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+                 {1,1,1,1,1,1,1,1,1,1,1,1,1,1},
              };
             /*
             Random random = new Random();
@@ -398,13 +406,25 @@ namespace TankGame
                 keys.IsKeyDown(Keys.W) || keys.IsKeyDown(Keys.A) || keys.IsKeyDown(Keys.S) || keys.IsKeyDown(Keys.D)))
             {
                 if (keys.IsKeyDown(Keys.W))
+                {
                     upDownRot += 1;
+                    command = "UP#";
+                }
                 else if (keys.IsKeyDown(Keys.A))
+                {
                     leftRightRot -= 1;
+                    command = "LEFT#";
+                }
                 else if (keys.IsKeyDown(Keys.D))
+                {
                     leftRightRot += 1;
+                    command = "RIGHT#";
+                }
                 else if (keys.IsKeyDown(Keys.S))
+                {
                     leftRightRot += 2;
+                    command = "DOWN#";
+                }
                 for(int i=0;i<60;i++)
                     moveQueue.Enqueue(new Tuple<float, float>(leftRightRot, upDownRot));
                 lastCommandTime = currentTime;
@@ -498,7 +518,7 @@ namespace TankGame
             verticesList = new List<VertexPositionNormalTexture>();          
             graphics.GraphicsDevice.Viewport = viewports[2];
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1, 0.2f, 10000.0f);
-            viewMatrix = Matrix.CreateLookAt(new Vector3(10, 21, -7.5f),new Vector3(10, 0, -7.5f),new Vector3(1, 0, 0));
+            viewMatrix = Matrix.CreateLookAt(new Vector3(7, 15, -7f),new Vector3(7, 0, -7f),new Vector3(1, 0, 0));
             worldMatrix = Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(tank.tankRotation) * Matrix.CreateTranslation(tank.tankPosition);
             DrawTanks(new Vector3(10, 0, -7.5f) - new Vector3(10, 21, -7.5f), new Vector3(1, 0, 0), viewMatrix, 3, 7);
             DrawBullets(viewMatrix, 0.05f);
@@ -521,8 +541,8 @@ namespace TankGame
             effect.Parameters["xTexture"].SetValue(sceneryTexture);
             effect.Parameters["xEnableLighting"].SetValue(true);
             effect.Parameters["xLightDirection"].SetValue(lightDirection);
-            effect.Parameters["xAmbient"].SetValue(0.5f);
-            device.BlendState = BlendState.NonPremultiplied;
+            effect.Parameters["xAmbient"].SetValue(0.8f);
+            device.BlendState=BlendState.NonPremultiplied;
 
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
