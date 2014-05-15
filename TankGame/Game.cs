@@ -69,7 +69,6 @@ namespace TankGame
         Quaternion[] cameraRotation =new Quaternion[3];
 
         public static List<Bullet> bulletList = new List<Bullet>();
-        Queue<Tuple<float,float>> moveQueue = new Queue<Tuple<float, float>>();
 
         public static List<coin> coinList = new List<coin>();
         public static List<medikit> medikitList = new List<medikit>();
@@ -351,6 +350,11 @@ namespace TankGame
             tank.CannonRotation = (float)Math.Sin(time * 0.25f) * 0.333f - 0.333f;
             tank.HatchRotation = MathHelper.Clamp((float)Math.Sin(time * 2) * 2, -1, 0);*/
             ProcessKeyboard(gameTime);
+            for (int i = 0; i < 5; i++)
+            {
+                if (tankArr[i] != null)
+                    tankArr[i].Move();
+            }
             UpdateCameras();
             
 
@@ -418,13 +422,13 @@ namespace TankGame
                     command = "DOWN#";
                 }
                 for(int i=0;i<60;i++)
-                    moveQueue.Enqueue(new Tuple<float, float>(leftRightRot, upDownRot));
+                    tank.moveQueue.Enqueue(new Tuple<float, float>(leftRightRot, upDownRot));
                 lastCommandTime = currentTime;
             }
-            else if(moveQueue.Count==0)
-                moveQueue.Enqueue(new Tuple<float,float>(leftRightRot,upDownRot));
+            else if(tank.moveQueue.Count==0)
+                tank.moveQueue.Enqueue(new Tuple<float,float>(leftRightRot,upDownRot));
 
-            Move(moveQueue.Dequeue());
+            //tank.Move();
 
             if (keys.IsKeyDown(Keys.Space))
             {
@@ -443,38 +447,7 @@ namespace TankGame
             
             
         }
-        private void Move(Tuple<float,float> tuple)
-        {
-            
-            float forwardSpeed = speed / 60.0f;
-            float turningSpeed = speed * MathHelper.ToRadians(1.5f);
-            float leftRightRot = tuple.Item1*turningSpeed;
-            float upDownRot = tuple.Item2*forwardSpeed;
-
-            tank.WheelRotation += upDownRot * 2;
-            tank.SteerRotation -= leftRightRot * 2;
-            if (leftRightRot == 0)
-            {
-                if (tank.SteerRotation >= turningSpeed * 2)
-                    tank.SteerRotation -= turningSpeed * 2;
-                else if (tank.SteerRotation <= -turningSpeed * 2)
-                    tank.SteerRotation += turningSpeed * 2;
-            }
-            if (tank.SteerRotation > 0.5f)
-                tank.SteerRotation = 0.5f;
-            else if (tank.SteerRotation < -0.5f)
-                tank.SteerRotation = -0.5f;
-            //tank.TurretRotation = tank.SteerRotation;
-
-            Quaternion additionalRot = //Quaternion.CreateFromAxisAngle(new Vector3(0, (float)(-0.5), 0), leftRightRot) *
-                Quaternion.CreateFromAxisAngle(new Vector3(0, -1, 0), leftRightRot);
-            tank.tankRotation *= additionalRot;
-            Math.Acos(tank.tankRotation.W * 2);
-            Debug.WriteLine(MathHelper.ToDegrees((float)Math.Acos(tank.tankRotation.W) * 2));
-            Vector3 addVector = Vector3.Transform(new Vector3(0, 0, -1), tank.tankRotation);
-            tank.tankPosition += addVector * upDownRot;
-            
-        }
+        
 
 
 

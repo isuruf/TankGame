@@ -1,6 +1,6 @@
 #region File Description
 //-----------------------------------------------------------------------------
-// Tank.cs
+// cs
 //
 // Microsoft XNA Community Game Platform
 // Copyright (C) Microsoft Corporation. All rights reserved.
@@ -8,6 +8,8 @@
 #endregion
 
 #region Using Statements
+using System.Collections;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -37,6 +39,7 @@ namespace TankGame
         public int x;
         public int y;
         public int num;
+        public Queue<Tuple<float, float>> moveQueue = new Queue<Tuple<float, float>>();
 
 
         // Shortcut references to the bones that we are going to animate.
@@ -263,6 +266,69 @@ namespace TankGame
 
                 mesh.Draw();
             }
+        }
+        public void Move()
+        {
+            if (moveQueue.Count != 0)
+            {
+                Tuple<float, float> tuple = moveQueue.Dequeue();
+                float forwardSpeed = 1 / 60.0f;
+                float turningSpeed = 1 * MathHelper.ToRadians(1.5f);
+                float leftRightRot = tuple.Item1 * turningSpeed;
+                float upDownRot = tuple.Item2 * forwardSpeed;
+
+                WheelRotation += upDownRot * 2;
+                SteerRotation -= leftRightRot * 2;
+                if (leftRightRot == 0)
+                {
+                    if (SteerRotation >= turningSpeed * 2)
+                        SteerRotation -= turningSpeed * 2;
+                    else if (SteerRotation <= -turningSpeed * 2)
+                        SteerRotation += turningSpeed * 2;
+                }
+                if (SteerRotation > 0.5f)
+                    SteerRotation = 0.5f;
+                else if (SteerRotation < -0.5f)
+                    SteerRotation = -0.5f;
+                //TurretRotation = SteerRotation;
+
+                Quaternion additionalRot = //Quaternion.CreateFromAxisAngle(new Vector3(0, (float)(-0.5), 0), leftRightRot) *
+                    Quaternion.CreateFromAxisAngle(new Vector3(0, -1, 0), leftRightRot);
+                tankRotation *= additionalRot;
+                Math.Acos(tankRotation.W * 2);
+                Debug.WriteLine(MathHelper.ToDegrees((float)Math.Acos(tankRotation.W) * 2));
+                Vector3 addVector = Vector3.Transform(new Vector3(0, 0, -1), tankRotation);
+                tankPosition += addVector * upDownRot;
+            }
+        }
+        public void updatePosition(int x, int y, int direction,Boolean shot)
+        {
+            float leftRightRot = 0;
+            float upDownRot = 0;
+            upDownRot+=Math.Abs(this.x-x)+Math.Abs(this.y-y);
+            if(upDownRot!=0){
+                for (int i = 0; i < 60; i++)
+                    moveQueue.Enqueue(new Tuple<float, float>(0, upDownRot));
+            }
+            else if(this.direction!=direction){
+                if(Math.Abs(this.direction-direction)==2)
+                    leftRightRot += 2;
+                else
+                    leftRightRot +=2-((direction-this.direction)%4); 
+                 for (int i = 0; i < 60; i++)
+                    moveQueue.Enqueue(new Tuple<float, float>(leftRightRot, 0));
+            }
+            this.x = x;
+            this.y = y;
+            this.direction = direction;
+            if (shot)
+            {
+                Bullet newBullet = new Bullet(tankPosition + Vector3.Transform(new Vector3(0, 0.17f, -0.05f),
+                    tankRotation), tankRotation, 1.5f / 60.0f);
+                Game1.bulletList.Add(newBullet);
+            }
+
+            
         }
     }
 }
