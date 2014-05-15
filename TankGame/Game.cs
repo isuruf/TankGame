@@ -36,7 +36,7 @@ namespace TankGame
         public static float time = 0;
         public static Tank tank;
         public static Tank[] tankArr = new Tank[5];
-        public static int size = 10;
+        public static int size = 20;
         public static int offset=size-1;
 
         SpriteBatch spriteBatch;
@@ -52,7 +52,7 @@ namespace TankGame
         public static float imagesInTexture = 13;
 
         public static int[,] floorPlan;
-        public static int[,] grid = new int[10,10];
+        public static int[,] grid = new int[size,size];
 
         int[] buildingHeights = new int[] {0,2,2};
         Vector3 lightDirection = new Vector3(3, -2, 5);
@@ -176,18 +176,10 @@ namespace TankGame
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, device.Viewport.AspectRatio, 0.05f, 10000.0f);
                 
 
-            //LoadFloorPlan();
             SetUpVertices();
             //SetUpBoundingBoxes();
             coinList.Add(new coin(new Vector3(5.5f, .2f, -3.5f), MathHelper.ToRadians(6f)));
             medikitList.Add(new medikit(new Vector3(6.5f, .3f, -3.5f), MathHelper.ToRadians(6f)));
-        }
-        private void LoadFloorPlan()
-        {
-            grid = new int[10,10];
-            for(int i=0;i<10;i++)
-                for(int j=0;j<10;j++)
-                    grid[i,j]=0;
         }
 
         private void SetUpVertices()
@@ -494,9 +486,13 @@ namespace TankGame
             verticesList = new List<VertexPositionNormalTexture>();          
             graphics.GraphicsDevice.Viewport = viewports[2];
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1, 0.2f, 10000.0f);
-            viewMatrix = Matrix.CreateLookAt(new Vector3(5, 15, -5f),new Vector3(5, 0, -5f),new Vector3(0, 0, 1));
+            
+            Vector3 newCampos = new Vector3(Game1.size/2f, 3+1.2f*Game1.size, -Game1.size/2f);
+            Vector3 newCamup = new Vector3(0,0,1);
+            Vector3 newTarget = new Vector3(Game1.size /2f, 0, -Game1.size / 2f);
+            viewMatrix = Matrix.CreateLookAt(newCampos,newTarget,newCamup);
             worldMatrix = Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(tank.tankRotation) * Matrix.CreateTranslation(tank.tankPosition);
-            DrawTanks(new Vector3(5, 0, 5f) - new Vector3(5, 21, -5f), new Vector3(0, 0, 1), viewMatrix, 3, 7);
+            DrawTanks(newTarget- newCampos, newCamup, viewMatrix, 3f,7);
             DrawBullets(viewMatrix, 0.05f);
             DrawCoins(viewMatrix, 0.3f);
             DrawMedikits(viewMatrix, 0.015f);

@@ -359,7 +359,7 @@ namespace TankGame
                 else
                 {
                     tankRotation *= Quaternion.CreateFromAxisAngle(new Vector3(0, 1, 0), -turn);
-                    SteerRotation += turn*2;
+                    SteerRotation -= turn*2;
                 }
 
                 if (SteerRotation > 0.5f)
