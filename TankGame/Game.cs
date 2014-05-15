@@ -55,7 +55,7 @@ namespace TankGame
         public static int[,] grid = new int[size,size];
 
         int[] buildingHeights = new int[] {0,2,2};
-        Vector3 lightDirection = new Vector3(3, -2, 5);
+        public static Vector3 lightDirection = new Vector3(3, -2, 5);
         
 
         Matrix viewMatrix = Matrix.Identity;
@@ -80,6 +80,8 @@ namespace TankGame
         TankGameBrain tankBrain;
         private Thread processThread;
         public static String command = "DOWN#";
+        public Queue<Tuple<float, float>> moveQueue = new Queue<Tuple<float, float>>();
+
         #endregion
 
         #region Initialization
@@ -146,32 +148,32 @@ namespace TankGame
         {
             tankBrain = new TankGameBrain();
             
-            processThread = new Thread(new ThreadStart(tankBrain.process));
+            /*processThread = new Thread(new ThreadStart(tankBrain.process));
             processThread.Priority = ThreadPriority.Normal;
             tankBrain.startGame();
             tankBrain.waitGameStarted();
             processThread.Start();
+            */
             
-
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             device = graphics.GraphicsDevice;
-
+            
             effect = Content.Load<Effect>("effects");
             sceneryTexture = Content.Load<Texture2D>("texturemap");
             Tank.tankModel = Content.Load<Model>("tank");
             Bullet.bulletModel = Content.Load<Model>("bullet");
             Tank.Initialize();
 
-            tankBrain.initGrid();
+/*            tankBrain.initGrid();
             tankBrain.initTanks();
-
-          /*  tank = new Tank(5,3,0,4);
+*/
+            tank = new Tank(5,3,0,4);
             for (int i = 0; i < 4; i++)
             {
                 tankArr[i] = new Tank(i,i,i,i);
             }
-            tankArr[4]=tank;*/
+            tankArr[4]=tank;
             Coin.coinModel = Content.Load<Model>("TyveKrone");
             Medikit.medikitModel = Content.Load<Model>("medikit");
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, device.Viewport.AspectRatio, 0.05f, 10000.0f);
@@ -179,8 +181,6 @@ namespace TankGame
 
             SetUpVertices();
             //SetUpBoundingBoxes();
-            //coinList.Add(new Coin(new Vector3(5.5f, .2f, -3.5f), MathHelper.ToRadians(6f)));
-            //medikitList.Add(new Medikit(new Vector3(6.5f, .3f, -3.5f), MathHelper.ToRadians(6f)));
         }
 
         private void SetUpVertices()
@@ -341,29 +341,23 @@ namespace TankGame
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
-            tankBrain.updateGrid();
-            tankBrain.placeCoins();
+            //tankBrain.updateGrid();
+            time = (float)gameTime.TotalGameTime.TotalSeconds;
+
+            ProcessKeyboard(gameTime);
+            for (int i = 0; i < 5; i++)
+            {
+                if (tankArr[i] != null)
+                    tankArr[i].Move();
+            }tankBrain.placeCoins();
             tankBrain.placeMedikits();
             time = (float)gameTime.TotalGameTime.TotalMilliseconds;
             Console.WriteLine("time = " + time);
             updateCoins();
             updateMedikits();
 
-            // Update the animation properties on the tank object. In a real game
-            // you would probably take this data from user inputs or the physics
-            // system, rather than just making everything rotate like this!
+        
 
-         /*   tank.WheelRotation = time * 5;
-            tank.SteerRotation = (float)Math.Sin(time * 0.75f) * 0.5f;
-            tank.TurretRotation = (float)Math.Sin(time * 0.333f) * 1.25f;
-            tank.CannonRotation = (float)Math.Sin(time * 0.25f) * 0.333f - 0.333f;
-            tank.HatchRotation = MathHelper.Clamp((float)Math.Sin(time * 2) * 2, -1, 0);*/
-            ProcessKeyboard(gameTime);
-            for (int i = 0; i < 5; i++)
-            {
-                if (tankArr[i] != null)
-                    tankArr[i].Move();
-            }
             UpdateCameras();
             
 
@@ -385,6 +379,8 @@ namespace TankGame
                 //coin.;
             }
         }
+           
+        
         public void UpdateCameras()
         {
             for (int i = 0; i < 2; i++)
@@ -406,7 +402,7 @@ namespace TankGame
             }
         }
         private void ProcessKeyboard(GameTime gameTime)
-        {/*
+        {
             KeyboardState keys = Keyboard.GetState();
             double currentTime = gameTime.TotalGameTime.TotalMilliseconds;
             float leftRightRot = 0;
@@ -447,13 +443,13 @@ namespace TankGame
                     command = "DOWN#";
                 }
                 for(int i=0;i<60;i++)
-                    tank.moveQueue.Enqueue(new Tuple<float, float>(leftRightRot, upDownRot));
+                    moveQueue.Enqueue(new Tuple<float, float>(leftRightRot, upDownRot));
                 lastCommandTime = currentTime;
             }
             else if(tank.moveQueue.Count==0)
-                tank.moveQueue.Enqueue(new Tuple<float,float>(leftRightRot,upDownRot));
+                moveQueue.Enqueue(new Tuple<float,float>(leftRightRot,upDownRot));
 
-            //tank.Move();
+            Move();
 
             if (keys.IsKeyDown(Keys.Space))
             {
@@ -468,13 +464,84 @@ namespace TankGame
                 }
             }
 
-            */
+            
             
             
         }
         
+        public void Move()
+        {
+            if (moveQueue.Count != 0)
+            {
+                Tuple<float, float> tuple = moveQueue.Dequeue();
+                float forwardSpeed = 1 / 60.0f;
+                float turningSpeed = 1 * MathHelper.ToRadians(1.5f);
+                float leftRightRot = tuple.Item1 * turningSpeed;
+                float upDownRot = tuple.Item2 * forwardSpeed;
 
+                tank.WheelRotation += upDownRot * 2;
+                tank.SteerRotation -= leftRightRot * 2;
+                if (leftRightRot == 0)
+                {
+                    if (tank.SteerRotation >= turningSpeed * 2)
+                        tank.SteerRotation -= turningSpeed * 2;
+                    else if (tank.SteerRotation <= -turningSpeed * 2)
+                        tank.SteerRotation += turningSpeed * 2;
+                }
+                if (tank.SteerRotation > 0.5f)
+                    tank.SteerRotation = 0.5f;
+                else if (tank.SteerRotation < -0.5f)
+                    tank.SteerRotation = -0.5f;
+                //TurretRotation = SteerRotation;
 
+                Quaternion additionalRot = //Quaternion.CreateFromAxisAngle(new Vector3(0, (float)(-0.5), 0), leftRightRot) *
+                    Quaternion.CreateFromAxisAngle(new Vector3(0, -1, 0), leftRightRot);
+                tank.tankRotation *= additionalRot;
+                Math.Acos(tank.tankRotation.W * 2);
+                Debug.WriteLine(MathHelper.ToDegrees((float)Math.Acos(tank.tankRotation.W) * 2));
+                Vector3 addVector = Vector3.Transform(new Vector3(0, 0, -1), tank.tankRotation);
+                tank.tankPosition += addVector * upDownRot;
+            }
+        }/*
+        public void updatePosition(int x, int y, int direction,int shot, int score, int coins, float health)
+        {
+            float leftRightRot = 0;
+            float upDownRot = 0;
+            upDownRot-=Math.Abs(this.x-x)+Math.Abs(this.y-y);
+            if (upDownRot != 1&&upDownRot!=0)
+            {
+                Debug.WriteLine("Error");
+            }
+            if(upDownRot!=0){
+                for (int i = 0; i < 60; i++)
+                    moveQueue.Enqueue(new Tuple<float, float>(0, upDownRot));
+            }
+            else if(this.direction!=direction){
+                if(Math.Abs(this.direction-direction)==2)
+                    leftRightRot -= 2;
+                else
+                    leftRightRot -=2-((direction-this.direction)%4); 
+                 for (int i = 0; i < 60; i++)
+                    moveQueue.Enqueue(new Tuple<float, float>(leftRightRot, 0));
+            }
+            this.x = x;
+            this.y = y;
+            this.direction = direction;
+            this.score = score;
+            this.coins = coins;
+            this.health = health;
+            if (shot == 1)
+            {
+                Bullet newBullet = new Bullet(tankPosition + Vector3.Transform(new Vector3(0, 0.17f, -0.05f),
+                    tankRotation), tankRotation, 1.5f / 60.0f);
+                Game1.bulletList.Add(newBullet);
+            }
+
+            
+        }
+        
+
+        */
 
         /// <summary>
         /// This is called when the game should draw itself.

@@ -167,15 +167,20 @@ namespace TankGame
             //tankModel = content.Load<Model>("tank");
 
             // Look up shortcut references to the bones we are going to animate.
-            leftBackWheelBone = tankModel.Bones["l_back_wheel_geo"];
-            rightBackWheelBone = tankModel.Bones["r_back_wheel_geo"];
-            leftFrontWheelBone = tankModel.Bones["l_front_wheel_geo"];
-            rightFrontWheelBone = tankModel.Bones["r_front_wheel_geo"];
-            leftSteerBone = tankModel.Bones["l_steer_geo"];
-            rightSteerBone = tankModel.Bones["r_steer_geo"];
-            turretBone = tankModel.Bones["turret_geo"];
-            cannonBone = tankModel.Bones["canon_geo"];
-            hatchBone = tankModel.Bones["hatch_geo"];
+            foreach (ModelBone b in tankModel.Bones)
+            {
+                
+                Debug.WriteLine(b.Index+" "+b.Name);
+            }
+            leftBackWheelBone = tankModel.Bones[6];
+            rightBackWheelBone = tankModel.Bones[2];
+            leftFrontWheelBone = tankModel.Bones[8];
+            rightFrontWheelBone = tankModel.Bones[4];
+            leftSteerBone = tankModel.Bones[7];
+            rightSteerBone = tankModel.Bones[3];
+            turretBone = tankModel.Bones[9];
+            cannonBone = tankModel.Bones[10];
+            hatchBone = tankModel.Bones[11];
             
 
             // Store the original transform matrix for each animating bone.
@@ -257,88 +262,35 @@ namespace TankGame
             // Draw the model.
             foreach (ModelMesh mesh in tankModel.Meshes)
             {
-                foreach (BasicEffect effect in mesh.Effects)
+                foreach (ModelMeshPart part in mesh.MeshParts)
                 {
+                    
+                    Effect effect = part.Effect;
+                    float time = 0;// Game1.time / 4;
+                    effect.Parameters["TranslationAmount"].SetValue(50 * time);
+                    effect.Parameters["RotationAmount"].SetValue(MathHelper.Pi * 3 * time);
+                    effect.Parameters["time"].SetValue(time);
+                    effect.Parameters["WorldViewProjection"].SetValue(
+                        boneTransforms[mesh.ParentBone.Index] * view * projection);
+                    effect.Parameters["World"].SetValue(boneTransforms[mesh.ParentBone.Index]);
+                    effect.Parameters["eyePosition"].SetValue(camera);
+                    effect.Parameters["lightPosition"].SetValue(Game1.lightDirection);
+                    effect.Parameters["ambientColor"].SetValue(Color.DarkGray.ToVector4());
+                    effect.Parameters["diffuseColor"].SetValue(Color.White.ToVector4());
+                    effect.Parameters["specularColor"].SetValue(Color.White.ToVector4());
+                    effect.Parameters["specularPower"].SetValue(50); 
+                    /*
                     effect.World = boneTransforms[mesh.ParentBone.Index];
                     effect.View = view;
                     effect.Projection = projection;
-
-                    effect.EnableDefaultLighting();
+                    
+                    effect.EnableDefaultLighting();*/
                 }
 
                 mesh.Draw();
             }
-        }/*
-        public void Move()
-        {
-            if (moveQueue.Count != 0)
-            {
-                Tuple<float, float> tuple = moveQueue.Dequeue();
-                float forwardSpeed = 1 / 60.0f;
-                float turningSpeed = 1 * MathHelper.ToRadians(1.5f);
-                float leftRightRot = tuple.Item1 * turningSpeed;
-                float upDownRot = tuple.Item2 * forwardSpeed;
-
-                WheelRotation += upDownRot * 2;
-                SteerRotation -= leftRightRot * 2;
-                if (leftRightRot == 0)
-                {
-                    if (SteerRotation >= turningSpeed * 2)
-                        SteerRotation -= turningSpeed * 2;
-                    else if (SteerRotation <= -turningSpeed * 2)
-                        SteerRotation += turningSpeed * 2;
-                }
-                if (SteerRotation > 0.5f)
-                    SteerRotation = 0.5f;
-                else if (SteerRotation < -0.5f)
-                    SteerRotation = -0.5f;
-                //TurretRotation = SteerRotation;
-
-                Quaternion additionalRot = //Quaternion.CreateFromAxisAngle(new Vector3(0, (float)(-0.5), 0), leftRightRot) *
-                    Quaternion.CreateFromAxisAngle(new Vector3(0, -1, 0), leftRightRot);
-                tankRotation *= additionalRot;
-                Math.Acos(tankRotation.W * 2);
-                Debug.WriteLine(MathHelper.ToDegrees((float)Math.Acos(tankRotation.W) * 2));
-                Vector3 addVector = Vector3.Transform(new Vector3(0, 0, -1), tankRotation);
-                tankPosition += addVector * upDownRot;
-            }
         }
-        public void updatePosition(int x, int y, int direction,int shot, int score, int coins, float health)
-        {
-            float leftRightRot = 0;
-            float upDownRot = 0;
-            upDownRot-=Math.Abs(this.x-x)+Math.Abs(this.y-y);
-            if (upDownRot != 1&&upDownRot!=0)
-            {
-                Debug.WriteLine("Error");
-            }
-            if(upDownRot!=0){
-                for (int i = 0; i < 60; i++)
-                    moveQueue.Enqueue(new Tuple<float, float>(0, upDownRot));
-            }
-            else if(this.direction!=direction){
-                if(Math.Abs(this.direction-direction)==2)
-                    leftRightRot -= 2;
-                else
-                    leftRightRot -=2-((direction-this.direction)%4); 
-                 for (int i = 0; i < 60; i++)
-                    moveQueue.Enqueue(new Tuple<float, float>(leftRightRot, 0));
-            }
-            this.x = x;
-            this.y = y;
-            this.direction = direction;
-            this.score = score;
-            this.coins = coins;
-            this.health = health;
-            if (shot == 1)
-            {
-                Bullet newBullet = new Bullet(tankPosition + Vector3.Transform(new Vector3(0, 0.17f, -0.05f),
-                    tankRotation), tankRotation, 1.5f / 60.0f);
-                Game1.bulletList.Add(newBullet);
-            }
-
-            
-        }*/
+        
         public void Move()
         {
             if (moveQueue.Count != 0)

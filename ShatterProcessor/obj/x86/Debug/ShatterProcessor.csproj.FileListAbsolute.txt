@@ -1,0 +1,4 @@
+C:\Users\User\Downloads\ShatterEffectSample_4_0\ShatterProcessor\bin\x86\Debug\ShatterProcessor.dll
+C:\Users\User\Downloads\ShatterEffectSample_4_0\ShatterProcessor\bin\x86\Debug\ShatterProcessor.pdb
+C:\Users\User\Downloads\ShatterEffectSample_4_0\ShatterProcessor\obj\x86\Debug\ShatterProcessor.dll
+C:\Users\User\Downloads\ShatterEffectSample_4_0\ShatterProcessor\obj\x86\Debug\ShatterProcessor.pdb

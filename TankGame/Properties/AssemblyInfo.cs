@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Simple Animation")]
-[assembly: AssemblyProduct("SimpleAnimation")]
-[assembly: AssemblyDescription("This sample shows how to apply simple program controlled rigid body animation to a model rendered using the XNA Framework.")]
+[assembly: AssemblyTitle("Shatter Effect")]
+[assembly: AssemblyProduct("Shatter Effect")]
+[assembly: AssemblyDescription("This sample shows how you can apply an effect on any model in your game to shatter it apart. The effect is simulated with a vertex shader.")]
 [assembly: AssemblyCompany("Microsoft")]
 
-[assembly: AssemblyCopyright("Copyright © Microsoft 2007")]
+[assembly: AssemblyCopyright("Copyright © Microsoft")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("5b09ddde-92e7-4ee8-b9ac-c29009df9e71")]
+[assembly: Guid("03d7db13-4eaa-4b90-b6a4-32c11aa0a3d5")]
 
 
 // Version information for an assembly consists of the following four values:
