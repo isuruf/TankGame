@@ -32,7 +32,7 @@ namespace TankGame
         // The XNA framework Model object that we are going to display.
         public static Model tankModel;
         public double lastBulletTime = 0;
-        public Vector3 tankPosition = new Vector3(8.5f, 0, -3.5f);
+        public Vector3 tankPosition;
         public Quaternion tankRotation = Quaternion.CreateFromAxisAngle(new Vector3(0,1,0),MathHelper.Pi);
         public float health;
         public int direction;
@@ -149,7 +149,7 @@ namespace TankGame
         }
         public Tank(int x,int y, int direction, int num)
         {
-            this.tankPosition = new Vector3(x+0.5f,0,-y-0.5f);
+            this.tankPosition = new Vector3(Game1.size-x-0.5f,0,-y-0.5f);
             this.tankRotation *= Quaternion.CreateFromAxisAngle(Vector3.UnitY, direction * MathHelper.PiOver2);
             this.health = 1;
             this.direction = direction;
@@ -358,7 +358,7 @@ namespace TankGame
                 }
                 else
                 {
-                    tankRotation *= Quaternion.CreateFromAxisAngle(new Vector3(0, 1, 0), turn);
+                    tankRotation *= Quaternion.CreateFromAxisAngle(new Vector3(0, 1, 0), -turn);
                     SteerRotation += turn*2;
                 }
 
@@ -368,7 +368,7 @@ namespace TankGame
                     SteerRotation = -0.5f;
                 //TurretRotation = SteerRotation;
 
-                tankPosition +=  new Vector3(tuple.Item2,0,-tuple.Item3);
+                tankPosition +=  new Vector3(-tuple.Item2,0,-tuple.Item3);
             }
         }
         public void updatePosition(int x, int y, int direction, int shot, int score, int coins, float health)
