@@ -33,7 +33,7 @@ namespace TankGame
         #region Fields
 
         GraphicsDeviceManager graphics;
-        float pos = 0;
+        public static float time = 0;
         public static Tank tank;
         public static Tank[] tankArr = new Tank[5];
 
@@ -225,6 +225,15 @@ namespace TankGame
                     
                     if (currentheight != 0)
                     {
+                        //floor
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, 0, -z), new Vector3(0, 1, 0), new Vector2(0, 1)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, 0, -z - 1), new Vector3(0, 1, 0), new Vector2(0, 0)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z), new Vector3(0, 1, 0), new Vector2(1 / imagesInTexture, 1)));
+
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, 0, -z - 1), new Vector3(0, 1, 0), new Vector2(0, 0)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z - 1), new Vector3(0, 1, 0), new Vector2(1 / imagesInTexture, 0)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z), new Vector3(0, 1, 0), new Vector2(1 / imagesInTexture, 1)));
+                    
                         //front wall
                         buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
                         buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, currentheight, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
@@ -338,7 +347,7 @@ namespace TankGame
         protected override void Update(GameTime gameTime)
         {
             tankBrain.updateGrid();
-            float time = (float)gameTime.TotalGameTime.TotalSeconds;
+            time = (float)gameTime.TotalGameTime.TotalSeconds;
 
             // Update the animation properties on the tank object. In a real game
             // you would probably take this data from user inputs or the physics
@@ -478,7 +487,7 @@ namespace TankGame
                 DrawBricks();
                 DrawCity();
                 pos += 0.002f;
-                Debug.WriteLine("count"+verticesList.Count+" "+i);
+                //Debug.WriteLine("count"+verticesList.Count+" "+i);
                // DrawBullet(worldMatrix * Matrix.CreateTranslation(0, 0.17f,-pos), viewMatrix, projectionMatrix, 0.008f);
             }
             verticesList = new List<VertexPositionNormalTexture>();          

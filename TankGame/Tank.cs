@@ -208,7 +208,7 @@ namespace TankGame
             //length = length2;
             length *= 0.05f * barScale;
             Vector3 height = Vector3.Normalize(camup) * 0.01f * barScale;
-            Debug.WriteLine("positions "+tankPosition+" "+camera);
+            //Debug.WriteLine("positions "+tankPosition+" "+camera);
             Vector3 position = tankPosition + v * 0.23f * barScale +camup * 0.22f * scale;
             scale *= 0.0005f;
             float image;
@@ -359,7 +359,7 @@ namespace TankGame
                 else
                 {
                     tankRotation *= Quaternion.CreateFromAxisAngle(new Vector3(0, 1, 0), turn);
-                    SteerRotation -= turn*2;
+                    SteerRotation += turn*2;
                 }
 
                 if (SteerRotation > 0.5f)
@@ -374,19 +374,23 @@ namespace TankGame
         public void updatePosition(int x, int y, int direction, int shot, int score, int coins, float health)
         {
             float move= Math.Abs(this.x - x) + Math.Abs(this.y - y);
-            if (move != 1 && move != 0)
+            if ((move != 1 || this.direction != direction) && move != 0)
             {
-                Debug.WriteLine("Error");
+                Debug.WriteLine("Error1");
             }
             if (move != 0)
             {
                 for (int i = 0; i < 60; i++)
                     moveQueue.Enqueue(new Tuple<float, float,float>(0,(x-this.x)/60f,(y-this.y)/60f));
+
             }
-            else if (this.direction != direction)
+            if (this.direction != direction)
             {
+                float angle = (direction - this.direction) % 4;
+                if (angle == 3)
+                    angle = -1;
                 for (int i = 0; i < 60; i++)
-                    moveQueue.Enqueue(new Tuple<float, float, float>(((direction - this.direction) % 4)*(float)MathHelper.PiOver2/60f, 0, 0));
+                    moveQueue.Enqueue(new Tuple<float, float, float>(angle*(float)MathHelper.PiOver2/60f, 0, 0));
             }
             this.x = x;
             this.y = y;
