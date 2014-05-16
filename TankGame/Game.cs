@@ -45,7 +45,7 @@ namespace TankGame
         Viewport[] viewports = new Viewport[3];
         float speed = 1.0f;
         public double lastCommandTime = 0;
-        public static float imagesInTexture = 16;
+        public static float imagesInTexture = 13;
 
         int[,] floorPlan;
         int[] buildingHeights = new int[] {0,2,2};
@@ -143,10 +143,10 @@ namespace TankGame
             Tank.tankModel = Content.Load<Model>("tank");
             Bullet.bulletModel = Content.Load<Model>("bullet");
             Tank.Initialize();
-            tank = new Tank(new Vector3(8.5f, 0, -10.5f),-Quaternion.Identity,2);
+            tank = new Tank(new Vector3(8.5f, 0, -10.5f),-Quaternion.Identity,1);
             for (int i = 0; i < 4; i++)
             {
-                tankArr[i] = new Tank(new Vector3(i+7.5f, 0,-i -2.5f), Quaternion.Identity, i);
+                tankArr[i] = new Tank(new Vector3(i+7.5f, 0,-i -2.5f), Quaternion.Identity,1/(i+1f));
             }
             tankArr[4]=tank;
             coin.coinModel = Content.Load<Model>("TyveKrone");
