@@ -12,7 +12,8 @@ namespace TankGame
     {
         public static Model coinModel;
         public Vector3 position;
-   
+        public int value;
+        public float liveTime;
         public float speed;
         public float angle=0;
         public Quaternion initRotation = new Quaternion(1, 0, 0, (float)Math.Cos(7*MathHelper.Pi/12));
@@ -26,10 +27,20 @@ namespace TankGame
             this.position = position;
             this.speed = speed;
         }
-        public Coin(int x, int y, float speed)
+        public Coin(int x, int y, int value, float liveTime)
         {
             this.position = new Vector3(x+0.5f,0.2f,-y-0.5f);
-            this.speed = MathHelper.ToRadians(6f);
+            this.value = value;
+            this.liveTime = Game1.time + liveTime;
+            this.speed = Microsoft.Xna.Framework.MathHelper.ToRadians(12f / (0.001f * liveTime));
+        }
+
+        public void coinUpdate(float currentTime)
+        {
+            float remainingTime = liveTime - currentTime;
+            this.speed = MathHelper.ToRadians(12f / (0.001f * remainingTime));
+            if (remainingTime <= 0)
+                Game1.coinList.Remove(this);
         }
 
         public void Draw(Matrix view,float scale)

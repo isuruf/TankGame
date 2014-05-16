@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Diagnostics;
 
@@ -75,7 +72,9 @@ namespace TankGame
                 int x = int.Parse(coordinates[0]);
                 int y = int.Parse(coordinates[1]);
                 Game1.grid[x, y] = 3;//Bricks are zeros
-                Game1.brickList.Add(new Brick(x,y));
+                Brick tempBrick = new Brick(x,y);
+                Game1.brickList.Add(tempBrick);
+                Game1.brickArray[x, y] = tempBrick;
             }
 
             for (int i = 0; i < stoneLocations.Length; ++i)
@@ -159,12 +158,14 @@ namespace TankGame
                     int x = int.Parse(status[0]);
                     int y = int.Parse(status[1]);
                     int health = int.Parse(status[2]);
-
+                    Game1.brickArray[x, y].update(health);
+                    if (health == 0)
+                        Game1.brickList.Remove(Game1.brickArray[x, y]);
                 }
             }
         }
 
-        public void placeCoin()
+        public void placeCoins()
         {
             String Cmessage = conn.giveLastCoin();
             if (Cmessage != null)
@@ -178,8 +179,9 @@ namespace TankGame
 
                     int x = int.Parse(coordinates[0]);
                     int y = int.Parse(coordinates[1]);
-                    int liveTime = int.Parse(CMsg[1]);
+                    float liveTime = int.Parse(CMsg[1]);
                     int value = int.Parse(CMsg[2]);
+                    Game1.coinList.Add(new Coin(x, y, value, liveTime));
                 }
             }
         }

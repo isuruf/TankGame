@@ -10,14 +10,14 @@ namespace TankGame
 {
     public class Brick
     {
-        public float health;
+        public int health;
         public int x, y;
 
         public Brick(int x, int y)
         {
             this.x = x;
             this.y = y;
-            this.health = 0;
+            this.health = 4;
         }
 
         public void AddToDraw()
@@ -74,6 +74,10 @@ namespace TankGame
                 Game1.verticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, 0, -z), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
                 Game1.verticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, currentheight, -z), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
             
+        }
+        public void update(int health)
+        {
+            this.health = health;
         }
     }
 }

@@ -75,6 +75,7 @@ namespace TankGame
         public static List<Coin> coinList = new List<Coin>();
         public static List<Medikit> medikitList = new List<Medikit>();
         public static List<Brick> brickList = new List<Brick>();
+        public static Brick[,] brickArray = new Brick[20, 20];
 
         TankGameBrain tankBrain;
         private Thread processThread;
@@ -164,6 +165,7 @@ namespace TankGame
 
             tankBrain.initGrid();
             tankBrain.initTanks();
+            tankBrain.placeCoins();
 
           /*  tank = new Tank(5,3,0,4);
             for (int i = 0; i < 4; i++)
@@ -178,7 +180,7 @@ namespace TankGame
 
             SetUpVertices();
             //SetUpBoundingBoxes();
-            coinList.Add(new Coin(new Vector3(5.5f, .2f, -3.5f), MathHelper.ToRadians(6f)));
+            //coinList.Add(new Coin(new Vector3(5.5f, .2f, -3.5f), MathHelper.ToRadians(6f)));
             medikitList.Add(new Medikit(new Vector3(6.5f, .3f, -3.5f), MathHelper.ToRadians(6f)));
         }
 
@@ -341,6 +343,7 @@ namespace TankGame
         protected override void Update(GameTime gameTime)
         {
             tankBrain.updateGrid();
+            updateCoins();
             time = (float)gameTime.TotalGameTime.TotalSeconds;
 
             // Update the animation properties on the tank object. In a real game
@@ -362,6 +365,13 @@ namespace TankGame
             
 
             base.Update(gameTime);
+        }
+        public void updateCoins()
+        {
+            foreach (Coin coin in coinList)
+            {
+                coin.coinUpdate(time);
+            }
         }
         public void UpdateCameras()
         {
