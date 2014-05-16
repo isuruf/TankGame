@@ -57,8 +57,74 @@ namespace TankGame
         }
         public void initGrid()
         {
-            while (conn.gameIAccepted) ;
-            conn.
+            while (conn.gameIAccepted) { };
+            String Imessage = conn.giveIMsg();
+            Imessage = Imessage.Substring(0, Imessage.Length - 1);
+            String[] IMsg = Imessage.Split(':');
+            //String msgType = IMsg[0];
+            String playerName = IMsg[1];
+            String[] brickLocations = IMsg[2].Split(';');
+            String[] stoneLocations = IMsg[3].Split(';');
+            String[] waterLocations = IMsg[4].Split(';');
+
+            for (int i = 0; i < brickLocations.Length; ++i)
+            {
+                String[] coordinates = brickLocations[i].Split(',');
+                int x = int.Parse(coordinates[0]);
+                int y = int.Parse(coordinates[1]);
+                Game1.grid[x, y] = 0;//Bricks are zeros
+            }
+
+            for (int i = 0; i < stoneLocations.Length; ++i)
+            {
+                String[] coordinates = stoneLocations[i].Split(',');
+                int x = int.Parse(coordinates[0]);
+                int y = int.Parse(coordinates[1]);
+                Game1.grid[x, y] = 1;//Stones are ones
+            }
+
+            for (int i = 0; i < waterLocations.Length; ++i)
+            {
+                String[] coordinates = waterLocations[i].Split(',');
+                int x = int.Parse(coordinates[0]);
+                int y = int.Parse(coordinates[1]);
+                Game1.grid[x, y] = 2;//Water locations are twos
+            }
+        }
+        public void initTanks()
+        {
+            while (conn.gameSAccepted) { };
+            String Smessage = conn.giveSMsg();
+            Smessage = Smessage.Substring(0, Smessage.Length - 1);
+            String[] SMsg = Smessage.Split(':');
+            //String msgType = IMsg[0];
+            String[] brickLocations = SMsg[2].Split(';');
+            String[] stoneLocations = SMsg[3].Split(';');
+            String[] waterLocations = SMsg[4].Split(';');
+
+            for (int i = 0; i < brickLocations.Length; ++i)
+            {
+                String[] coordinates = brickLocations[i].Split(',');
+                int x = int.Parse(coordinates[0]);
+                int y = int.Parse(coordinates[1]);
+                Game1.grid[x, y] = 0;//Bricks are zeros
+            }
+
+            for (int i = 0; i < stoneLocations.Length; ++i)
+            {
+                String[] coordinates = stoneLocations[i].Split(',');
+                int x = int.Parse(coordinates[0]);
+                int y = int.Parse(coordinates[1]);
+                Game1.grid[x, y] = 1;//Stones are ones
+            }
+
+            for (int i = 0; i < waterLocations.Length; ++i)
+            {
+                String[] coordinates = waterLocations[i].Split(',');
+                int x = int.Parse(coordinates[0]);
+                int y = int.Parse(coordinates[1]);
+                Game1.grid[x, y] = 2;//Water locations are twos
+            }
         }
         public void process()
         {
