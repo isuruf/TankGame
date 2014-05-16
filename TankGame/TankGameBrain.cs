@@ -94,6 +94,7 @@ namespace TankGame
                 Game1.grid[x, y] = 4;//Water locations are twos
             }
         }
+
         public void initTanks()
         {
 
@@ -118,12 +119,42 @@ namespace TankGame
                 int x = int.Parse(coordinates[0]);
                 int y = int.Parse(coordinates[1]);
                 int direction = int.Parse(playerData[2]);
-                Game1.tankArr[i] = new Tank(x,y,direction,playerNum);
+                Game1.tankArr[playerNum] = new Tank(x,y,direction,playerNum);
                 if (playerNum == this.playerName)
-                    Game1.tank = Game1.tankArr[i];
+                    Game1.tank = Game1.tankArr[playerNum];
 
             }
         }
+
+        public void updateGrid()
+        {
+            if (conn.isNewGMsg())
+            {
+                String Gmessage = conn.giveLastGmsg();
+                Gmessage = Gmessage.Substring(2, Gmessage.Length - 3);
+                String[] GMsg = Gmessage.Split(':');
+                //String msgType = IMsg[0];
+
+
+                for (int i = 0; i < GMsg.Length - 1; ++i)
+                {
+                    String[] playerData = GMsg[i].Split(';');
+                    int playerNum = int.Parse(playerData[0].Substring(1));
+                    String[] coordinates = playerData[1].Split(',');
+
+                    int x = int.Parse(coordinates[0]);
+                    int y = int.Parse(coordinates[1]);
+                    int direction = int.Parse(playerData[2]);
+                    int shot = int.Parse(playerData[3]);
+                    int health = int.Parse(playerData[4]);
+                    int coins = int.Parse(playerData[5]);
+                    int score = int.Parse(playerData[6]);
+
+                    Game1.tankArr[playerNum].updatePosition(x, y, direction, shot, score, coins, health/4);
+                }
+            }
+        }
+
         public void process()
         {
             String command = Game1.command;

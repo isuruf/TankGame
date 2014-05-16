@@ -213,7 +213,7 @@ namespace TankGame
                     {
                         currentheight = 0;
                     }
-                    Debug.WriteLine(currentbuilding + " " + currentheight);
+
                     //floor or ceiling
                     buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, currentheight, -z), new Vector3(0, 1, 0), new Vector2(currentbuilding * 2 / imagesInTexture, 1)));
                     buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, currentheight, -z - 1), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
@@ -337,7 +337,7 @@ namespace TankGame
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
-
+            tankBrain.updateGrid();
             float time = (float)gameTime.TotalGameTime.TotalSeconds;
 
             // Update the animation properties on the tank object. In a real game
@@ -381,7 +381,7 @@ namespace TankGame
             }
         }
         private void ProcessKeyboard(GameTime gameTime)
-        {
+        {/*
             KeyboardState keys = Keyboard.GetState();
             double currentTime = gameTime.TotalGameTime.TotalMilliseconds;
             float leftRightRot = 0;
@@ -443,7 +443,7 @@ namespace TankGame
                 }
             }
 
-
+            */
             
             
         }

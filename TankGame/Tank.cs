@@ -33,13 +33,15 @@ namespace TankGame
         public static Model tankModel;
         public double lastBulletTime = 0;
         public Vector3 tankPosition = new Vector3(8.5f, 0, -3.5f);
-        public Quaternion tankRotation = Quaternion.Identity;
+        public Quaternion tankRotation = Quaternion.CreateFromAxisAngle(new Vector3(0,1,0),MathHelper.Pi);
         public float health;
         public int direction;
         public int x;
         public int y;
         public int num;
-        public Queue<Tuple<float, float>> moveQueue = new Queue<Tuple<float, float>>();
+        public int score = 0;
+        public int coins = 0;
+        public Queue<Tuple<float, float, float>> moveQueue = new Queue<Tuple<float, float,float>>();
 
 
         // Shortcut references to the bones that we are going to animate.
@@ -148,7 +150,7 @@ namespace TankGame
         public Tank(int x,int y, int direction, int num)
         {
             this.tankPosition = new Vector3(x+0.5f,0,-y-0.5f);
-            this.tankRotation = Quaternion.CreateFromAxisAngle(Vector3.UnitY, direction * MathHelper.PiOver2);
+            this.tankRotation *= Quaternion.CreateFromAxisAngle(Vector3.UnitY, direction * MathHelper.PiOver2);
             this.health = 1;
             this.direction = direction;
             this.x = x;
@@ -266,7 +268,7 @@ namespace TankGame
 
                 mesh.Draw();
             }
-        }
+        }/*
         public void Move()
         {
             if (moveQueue.Count != 0)
@@ -301,27 +303,34 @@ namespace TankGame
                 tankPosition += addVector * upDownRot;
             }
         }
-        public void updatePosition(int x, int y, int direction,Boolean shot)
+        public void updatePosition(int x, int y, int direction,int shot, int score, int coins, float health)
         {
             float leftRightRot = 0;
             float upDownRot = 0;
-            upDownRot+=Math.Abs(this.x-x)+Math.Abs(this.y-y);
+            upDownRot-=Math.Abs(this.x-x)+Math.Abs(this.y-y);
+            if (upDownRot != 1&&upDownRot!=0)
+            {
+                Debug.WriteLine("Error");
+            }
             if(upDownRot!=0){
                 for (int i = 0; i < 60; i++)
                     moveQueue.Enqueue(new Tuple<float, float>(0, upDownRot));
             }
             else if(this.direction!=direction){
                 if(Math.Abs(this.direction-direction)==2)
-                    leftRightRot += 2;
+                    leftRightRot -= 2;
                 else
-                    leftRightRot +=2-((direction-this.direction)%4); 
+                    leftRightRot -=2-((direction-this.direction)%4); 
                  for (int i = 0; i < 60; i++)
                     moveQueue.Enqueue(new Tuple<float, float>(leftRightRot, 0));
             }
             this.x = x;
             this.y = y;
             this.direction = direction;
-            if (shot)
+            this.score = score;
+            this.coins = coins;
+            this.health = health;
+            if (shot == 1)
             {
                 Bullet newBullet = new Bullet(tankPosition + Vector3.Transform(new Vector3(0, 0.17f, -0.05f),
                     tankRotation), tankRotation, 1.5f / 60.0f);
@@ -329,6 +338,70 @@ namespace TankGame
             }
 
             
+        }*/
+        public void Move()
+        {
+            if (moveQueue.Count != 0)
+            {
+                Tuple<float, float,float> tuple = moveQueue.Dequeue();
+                float turningSpeed = MathHelper.ToRadians(1.5f);
+                float turn = tuple.Item1;
+
+                WheelRotation += Math.Abs(tuple.Item3)+Math.Abs(tuple.Item2)* 2;
+
+                if (turn == 0)
+                {
+                    if (SteerRotation >= turningSpeed * 2)
+                        SteerRotation -= turningSpeed * 2;
+                    else if (SteerRotation <= -turningSpeed * 2)
+                        SteerRotation += turningSpeed * 2;
+                }
+                else
+                {
+                    tankRotation *= Quaternion.CreateFromAxisAngle(new Vector3(0, 1, 0), turn);
+                    SteerRotation -= turn*2;
+                }
+
+                if (SteerRotation > 0.5f)
+                    SteerRotation = 0.5f;
+                else if (SteerRotation < -0.5f)
+                    SteerRotation = -0.5f;
+                //TurretRotation = SteerRotation;
+
+                tankPosition +=  new Vector3(tuple.Item2,0,-tuple.Item3);
+            }
+        }
+        public void updatePosition(int x, int y, int direction, int shot, int score, int coins, float health)
+        {
+            float move= Math.Abs(this.x - x) + Math.Abs(this.y - y);
+            if (move != 1 && move != 0)
+            {
+                Debug.WriteLine("Error");
+            }
+            if (move != 0)
+            {
+                for (int i = 0; i < 60; i++)
+                    moveQueue.Enqueue(new Tuple<float, float,float>(0,(x-this.x)/60f,(y-this.y)/60f));
+            }
+            else if (this.direction != direction)
+            {
+                for (int i = 0; i < 60; i++)
+                    moveQueue.Enqueue(new Tuple<float, float, float>(((direction - this.direction) % 4)*(float)MathHelper.PiOver2/60f, 0, 0));
+            }
+            this.x = x;
+            this.y = y;
+            this.direction = direction;
+            this.score = score;
+            this.coins = coins;
+            this.health = health;
+            if (shot == 1)
+            {
+                Bullet newBullet = new Bullet(tankPosition + Vector3.Transform(new Vector3(0, 0.17f, -0.05f),
+                    tankRotation), tankRotation, 1.5f / 60.0f);
+                Game1.bulletList.Add(newBullet);
+            }
+
+
         }
     }
 }
