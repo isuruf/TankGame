@@ -8,18 +8,18 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TankGame
 {
-    public class brick
+    public class Brick
     {
         public Vector3 position;
         public float health;
         public int x, y;
 
-        public brick(int x, int y)
+        public Brick(int x, int y)
         {
             this.position = new Vector3(x+0.5f,0.2f,-y-0.5f);
             this.x = x;
             this.y = y;
-            this.health = 1;
+            this.health = 0;
         }
 
         public void AddToDraw()

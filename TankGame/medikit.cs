@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TankGame
 {
-    public class medikit
+    public class Medikit
     {
         public static Model medikitModel;
         public Vector3 position;
@@ -22,14 +22,14 @@ namespace TankGame
         {
             angle += speed;
         }
-        public medikit(Vector3 position, float speed)
+        public Medikit(Vector3 position, float speed)
         {
             this.position = position;
 
             this.speed = speed;
             //            this.player = player;
         }
-        public medikit(int x, int y)
+        public Medikit(int x, int y)
         {
             this.position = new Vector3(x+0.5f,0.2f,-y-0.5f);
             this.speed = MathHelper.ToRadians(6f);

@@ -70,9 +70,9 @@ namespace TankGame
 
         public static List<Bullet> bulletList = new List<Bullet>();
 
-        public static List<coin> coinList = new List<coin>();
-        public static List<medikit> medikitList = new List<medikit>();
-        public static List<brick> brickList = new List<brick>();
+        public static List<Coin> coinList = new List<Coin>();
+        public static List<Medikit> medikitList = new List<Medikit>();
+        public static List<Brick> brickList = new List<Brick>();
 
         TankGameBrain tankBrain;
         private Thread processThread;
@@ -169,16 +169,16 @@ namespace TankGame
                 tankArr[i] = new Tank(i,i,i);
             }
             tankArr[4]=tank;*/
-            coin.coinModel = Content.Load<Model>("TyveKrone");
-            medikit.medikitModel = Content.Load<Model>("medikit");
+            Coin.coinModel = Content.Load<Model>("TyveKrone");
+            Medikit.medikitModel = Content.Load<Model>("medikit");
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, device.Viewport.AspectRatio, 0.05f, 10000.0f);
                 
 
             //LoadFloorPlan();
             SetUpVertices();
             //SetUpBoundingBoxes();
-            coinList.Add(new coin(new Vector3(5.5f, .2f, -3.5f), MathHelper.ToRadians(6f)));
-            medikitList.Add(new medikit(new Vector3(6.5f, .3f, -3.5f), MathHelper.ToRadians(6f)));
+            coinList.Add(new Coin(new Vector3(5.5f, .2f, -3.5f), MathHelper.ToRadians(6f)));
+            medikitList.Add(new Medikit(new Vector3(6.5f, .3f, -3.5f), MathHelper.ToRadians(6f)));
         }
         private void LoadFloorPlan()
         {
@@ -536,15 +536,15 @@ namespace TankGame
         }
         public void DrawBricks()
         {
-            foreach (brick brik in brickList)
+            foreach (Brick brick in brickList)
             {
-                if(brik.health > 0)
-                    brik.AddToDraw();
+                if(brick.health > 0)
+                    brick.AddToDraw();
             }
         }
         public void DrawCoins(Matrix viewMatrix, float scale)
         {
-            foreach (coin coin in coinList)
+            foreach (Coin coin in coinList)
             {
                 coin.MoveForward();
                 coin.Draw(viewMatrix, scale);
@@ -552,7 +552,7 @@ namespace TankGame
         }
         public void DrawMedikits(Matrix viewMatrix, float scale)
         {
-            foreach (medikit medikit in medikitList)
+            foreach (Medikit medikit in medikitList)
             {
                 medikit.MoveForward();
                 medikit.Draw(viewMatrix, scale);

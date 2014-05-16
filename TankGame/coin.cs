@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TankGame
 {
-    public class coin
+    public class Coin
     {
         public static Model coinModel;
         public Vector3 position;
@@ -21,12 +21,12 @@ namespace TankGame
         {
             angle+=speed;
         }
-        public coin(Vector3 position, float speed)
+        public Coin(Vector3 position, float speed)
         {
             this.position = position;
             this.speed = speed;
         }
-        public coin(int x, int y, float speed)
+        public Coin(int x, int y, float speed)
         {
             this.position = new Vector3(x+0.5f,0.2f,-y-0.5f);
             this.speed = MathHelper.ToRadians(6f);

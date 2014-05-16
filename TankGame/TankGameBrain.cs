@@ -75,7 +75,7 @@ namespace TankGame
                 int x = int.Parse(coordinates[0]);
                 int y = int.Parse(coordinates[1]);
                 Game1.grid[x, y] = 3;//Bricks are zeros
-                Game1.brickList.Add(new brick(x,y));
+                Game1.brickList.Add(new Brick(x,y));
             }
 
             for (int i = 0; i < stoneLocations.Length; ++i)
@@ -150,7 +150,36 @@ namespace TankGame
                     int coins = int.Parse(playerData[5]);
                     int score = int.Parse(playerData[6]);
 
-                    Game1.tankArr[playerNum].updatePosition(x, y, direction, shot, score, coins, health/4);
+                    Game1.tankArr[playerNum].updatePosition(x, y, direction, shot, score, coins, health / 4);
+                }
+                String[] brickHealth = GMsg[GMsg.Length - 1].Split(';');
+                for (int i = 0; i < brickHealth.Length; ++i)
+                {
+                    String[] status = brickHealth[i].Split(',');
+                    int x = int.Parse(status[0]);
+                    int y = int.Parse(status[1]);
+                    int health = int.Parse(status[2]);
+
+                }
+            }
+        }
+
+        public void placeCoin()
+        {
+            String Cmessage = conn.giveLastCoin();
+            if (Cmessage != null)
+            {
+                Cmessage = Cmessage.Substring(2, Cmessage.Length - 3);
+                String[] CMsg = Cmessage.Split(':');
+
+                for (int i = 0; i < CMsg.Length; ++i)
+                {
+                    String[] coordinates = CMsg[0].Split(',');
+
+                    int x = int.Parse(coordinates[0]);
+                    int y = int.Parse(coordinates[1]);
+                    int liveTime = int.Parse(CMsg[1]);
+                    int value = int.Parse(CMsg[2]);
                 }
             }
         }
