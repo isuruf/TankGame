@@ -30,7 +30,7 @@ namespace TankGame
                 Thread.Sleep(4057);
             } while (!conn.connectionAvailability());   //loop until server starts listning to clients
             Console.WriteLine("joined");
-            while (!conn.GameIAccepted())
+            while (!conn.gameIAccepted)
             {
                 Thread.Sleep(200);
                 if (eHandler.giveJoinError() != null)
@@ -43,7 +43,7 @@ namespace TankGame
         public void waitGameStarted()
         {
 
-            while (!conn.GameSAccepted())
+            while (!conn.gameSAccepted)
             {
                 Thread.Sleep(200);
             }
@@ -53,7 +53,12 @@ namespace TankGame
         }
         public bool isGameStarted()
         {
-            return conn.GameSAccepted();
+            return conn.gameSAccepted;
+        }
+        public void initGrid()
+        {
+            while (conn.gameIAccepted) ;
+            conn.
         }
         public void process()
         {

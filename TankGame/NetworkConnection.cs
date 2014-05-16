@@ -25,8 +25,8 @@ namespace TankGame
         private String lastVariableUpdate;
         private List<String> lastLifePack;
         private List<String> lastCoin;
-        private Boolean gameSAccepted = false;
-        private Boolean gameIAccepted = false;
+        public Boolean gameSAccepted = false;
+        public Boolean gameIAccepted = false;
         private String SMsg;
         private String Imsg;
         private Boolean connection=false;
@@ -200,14 +200,7 @@ namespace TankGame
             lastError = null;
             return s;
         }
-        public Boolean GameSAccepted()
-        {
-            return gameSAccepted;
-        }
-        public Boolean GameIAccepted()
-        {
-            return gameIAccepted;
-        }
+
         public String giveSMsg()
         {
             String s = null;

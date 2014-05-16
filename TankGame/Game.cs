@@ -34,8 +34,8 @@ namespace TankGame
 
         GraphicsDeviceManager graphics;
         float pos = 0;
-        Tank tank;
-        Tank[] tankArr = new Tank[5];
+        public static Tank tank;
+        public static Tank[] tankArr = new Tank[5];
 
         SpriteBatch spriteBatch;
         GraphicsDevice device;
@@ -49,7 +49,9 @@ namespace TankGame
         public double lastCommandTime = 0;
         public static float imagesInTexture = 13;
 
-        int[,] floorPlan;
+        public static int[,] floorPlan;
+        public static int[,] grid = new int[10,10];
+
         int[] buildingHeights = new int[] {0,2,2};
         Vector3 lightDirection = new Vector3(3, -2, 5);
         
@@ -66,11 +68,11 @@ namespace TankGame
         public Vector3[] cameraUpDirection = new Vector3[3];
         Quaternion[] cameraRotation =new Quaternion[3];
 
-        List<Bullet> bulletList = new List<Bullet>();
+        public static List<Bullet> bulletList = new List<Bullet>();
         Queue<Tuple<float,float>> moveQueue = new Queue<Tuple<float, float>>();
 
-        List<coin> coinList = new List<coin>();
-        List<medikit> medikitList = new List<medikit>();
+        public static List<coin> coinList = new List<coin>();
+        public static List<medikit> medikitList = new List<medikit>();
 
         TankGameBrain tankBrain;
         private Thread processThread;
@@ -146,7 +148,7 @@ namespace TankGame
             tankBrain.startGame();
             tankBrain.waitGameStarted();
             processThread.Start();
-
+            
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
@@ -157,6 +159,9 @@ namespace TankGame
             Tank.tankModel = Content.Load<Model>("tank");
             Bullet.bulletModel = Content.Load<Model>("bullet");
             Tank.Initialize();
+
+            tankBrain.initGrid();
+
             tank = new Tank(new Vector3(8.5f, 0, -10.5f),-Quaternion.Identity,1);
             for (int i = 0; i < 4; i++)
             {
