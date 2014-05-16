@@ -120,7 +120,7 @@ namespace TankGame
                 int y = int.Parse(coordinates[1]);
                 int direction = int.Parse(playerData[2]);
                 Game1.tankArr[playerNum] = new Tank(x,y,direction,playerNum);
-                if (playerNum == this.playerName)
+       //    if (playerNum != this.playerName)
                     Game1.tank = Game1.tankArr[playerNum];
 
             }

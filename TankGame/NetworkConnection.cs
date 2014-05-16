@@ -134,6 +134,7 @@ namespace TankGame
                         Console.WriteLine(ip + ": " + reply.Substring(0, reply.Length - 1));
                         dataObj = new DataObject(reply.Substring(0, reply.Length - 1), ip, port);
                         lastReply = dataObj;
+                        Console.WriteLine(lastReply.MSG+" xyz "+Game1.time);
                         if(lastReply.MSG.StartsWith("G:")){
                             newGMsg = true;
                             lastVariableUpdate = lastReply.MSG;
@@ -195,7 +196,7 @@ namespace TankGame
         public String giveLastError()
         {
             String s=null;
-            if(lastError!=null && lastError.Length!=1)
+            if(lastError!=null && lastError.Length>=1)
                 s = (String)lastError.Substring(0,lastError.Length-1);
             lastError = null;
             return s;

@@ -32,7 +32,7 @@ namespace TankGame
         // The XNA framework Model object that we are going to display.
         public static Model tankModel;
         public double lastBulletTime = 0;
-        public Vector3 tankPosition = new Vector3(8.5f, 0, -3.5f);
+        public Vector3 tankPosition;
         public Quaternion tankRotation = Quaternion.CreateFromAxisAngle(new Vector3(0,1,0),MathHelper.Pi);
         public float health;
         public int direction;
@@ -149,7 +149,7 @@ namespace TankGame
         }
         public Tank(int x,int y, int direction, int num)
         {
-            this.tankPosition = new Vector3(x+0.5f,0,-y-0.5f);
+            this.tankPosition = new Vector3(Game1.size-x-0.5f,0,-y-0.5f);
             this.tankRotation *= Quaternion.CreateFromAxisAngle(Vector3.UnitY, direction * MathHelper.PiOver2);
             this.health = 1;
             this.direction = direction;
@@ -208,7 +208,7 @@ namespace TankGame
             //length = length2;
             length *= 0.05f * barScale;
             Vector3 height = Vector3.Normalize(camup) * 0.01f * barScale;
-            Debug.WriteLine("positions "+tankPosition+" "+camera);
+            //Debug.WriteLine("positions "+tankPosition+" "+camera);
             Vector3 position = tankPosition + v * 0.23f * barScale +camup * 0.22f * scale;
             scale *= 0.0005f;
             float image;
@@ -358,7 +358,7 @@ namespace TankGame
                 }
                 else
                 {
-                    tankRotation *= Quaternion.CreateFromAxisAngle(new Vector3(0, 1, 0), turn);
+                    tankRotation *= Quaternion.CreateFromAxisAngle(new Vector3(0, 1, 0), -turn);
                     SteerRotation -= turn*2;
                 }
 
@@ -368,25 +368,29 @@ namespace TankGame
                     SteerRotation = -0.5f;
                 //TurretRotation = SteerRotation;
 
-                tankPosition +=  new Vector3(tuple.Item2,0,-tuple.Item3);
+                tankPosition +=  new Vector3(-tuple.Item2,0,-tuple.Item3);
             }
         }
         public void updatePosition(int x, int y, int direction, int shot, int score, int coins, float health)
         {
             float move= Math.Abs(this.x - x) + Math.Abs(this.y - y);
-            if (move != 1 && move != 0)
+            if ((move != 1 || this.direction != direction) && move != 0)
             {
-                Debug.WriteLine("Error");
+                Debug.WriteLine("Error1");
             }
             if (move != 0)
             {
                 for (int i = 0; i < 60; i++)
                     moveQueue.Enqueue(new Tuple<float, float,float>(0,(x-this.x)/60f,(y-this.y)/60f));
+
             }
-            else if (this.direction != direction)
+            if (this.direction != direction)
             {
+                float angle = (direction - this.direction) % 4;
+                if (angle == 3)
+                    angle = -1;
                 for (int i = 0; i < 60; i++)
-                    moveQueue.Enqueue(new Tuple<float, float, float>(((direction - this.direction) % 4)*(float)MathHelper.PiOver2/60f, 0, 0));
+                    moveQueue.Enqueue(new Tuple<float, float, float>(angle*(float)MathHelper.PiOver2/60f, 0, 0));
             }
             this.x = x;
             this.y = y;

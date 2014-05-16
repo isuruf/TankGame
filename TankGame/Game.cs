@@ -33,9 +33,11 @@ namespace TankGame
         #region Fields
 
         GraphicsDeviceManager graphics;
-        float pos = 0;
+        public static float time = 0;
         public static Tank tank;
         public static Tank[] tankArr = new Tank[5];
+        public static int size = 20;
+        public static int offset=size-1;
 
         SpriteBatch spriteBatch;
         GraphicsDevice device;
@@ -50,7 +52,7 @@ namespace TankGame
         public static float imagesInTexture = 13;
 
         public static int[,] floorPlan;
-        public static int[,] grid = new int[10,10];
+        public static int[,] grid = new int[size,size];
 
         int[] buildingHeights = new int[] {0,2,2};
         Vector3 lightDirection = new Vector3(3, -2, 5);
@@ -142,7 +144,7 @@ namespace TankGame
         protected override void LoadContent()
         {
             tankBrain = new TankGameBrain();
-
+            
             processThread = new Thread(new ThreadStart(tankBrain.process));
             processThread.Priority = ThreadPriority.Normal;
             tankBrain.startGame();
@@ -163,10 +165,10 @@ namespace TankGame
             tankBrain.initGrid();
             tankBrain.initTanks();
 
-            /*tank = new Tank(5,3,0);
+          /*  tank = new Tank(5,3,0,4);
             for (int i = 0; i < 4; i++)
             {
-                tankArr[i] = new Tank(i,i,i);
+                tankArr[i] = new Tank(i,i,i,i);
             }
             tankArr[4]=tank;*/
             Coin.coinModel = Content.Load<Model>("TyveKrone");
@@ -174,18 +176,10 @@ namespace TankGame
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, device.Viewport.AspectRatio, 0.05f, 10000.0f);
                 
 
-            //LoadFloorPlan();
             SetUpVertices();
             //SetUpBoundingBoxes();
             coinList.Add(new Coin(new Vector3(5.5f, .2f, -3.5f), MathHelper.ToRadians(6f)));
             medikitList.Add(new Medikit(new Vector3(6.5f, .3f, -3.5f), MathHelper.ToRadians(6f)));
-        }
-        private void LoadFloorPlan()
-        {
-            grid = new int[10,10];
-            for(int i=0;i<10;i++)
-                for(int j=0;j<10;j++)
-                    grid[i,j]=0;
         }
 
         private void SetUpVertices()
@@ -213,53 +207,62 @@ namespace TankGame
                     {
                         currentheight = 0;
                     }
-
+                    int x1 = offset - x;
                     //floor or ceiling
-                    buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, currentheight, -z), new Vector3(0, 1, 0), new Vector2(currentbuilding * 2 / imagesInTexture, 1)));
-                    buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, currentheight, -z - 1), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
-                    buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, currentheight, -z), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2 + 1) / imagesInTexture, 1)));
+                    buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, currentheight, -z), new Vector3(0, 1, 0), new Vector2(currentbuilding * 2 / imagesInTexture, 1)));
+                    buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, currentheight, -z - 1), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
+                    buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, currentheight, -z), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2 + 1) / imagesInTexture, 1)));
 
-                    buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, currentheight, -z - 1), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
-                    buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, currentheight, -z - 1), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2 + 1) / imagesInTexture, 0)));
-                    buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, currentheight, -z), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2 + 1) / imagesInTexture, 1)));
+                    buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, currentheight, -z - 1), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
+                    buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, currentheight, -z - 1), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2 + 1) / imagesInTexture, 0)));
+                    buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, currentheight, -z), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2 + 1) / imagesInTexture, 1)));
                     
                     if (currentheight != 0)
                     {
-                        //front wall
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, currentheight, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, 0, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 1)));
+                        //floor
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, 0, -z), new Vector3(0, 1, 0), new Vector2(0, 1)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, 0, -z - 1), new Vector3(0, 1, 0), new Vector2(0, 0)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, 0, -z), new Vector3(0, 1, 0), new Vector2(1 / imagesInTexture, 1)));
 
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, currentheight, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, currentheight, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, 0, -z - 1), new Vector3(0, 1, 0), new Vector2(0, 0)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, 0, -z - 1), new Vector3(0, 1, 0), new Vector2(1 / imagesInTexture, 0)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, 0, -z), new Vector3(0, 1, 0), new Vector2(1 / imagesInTexture, 1)));
+                    
+                        //front wall
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, 0, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, currentheight, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, 0, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 1)));
+
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, currentheight, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, 0, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, currentheight, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
 
                         //back wall
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z), new Vector3(0, 0, 1), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, 0, -z), new Vector3(0, 0, 1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 1)));
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, currentheight, -z), new Vector3(0, 0, 1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, 0, -z), new Vector3(0, 0, 1), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, 0, -z), new Vector3(0, 0, 1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 1)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, currentheight, -z), new Vector3(0, 0, 1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
 
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, currentheight, -z), new Vector3(0, 0, 1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, currentheight, -z), new Vector3(0, 0, 1), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z), new Vector3(0, 0, 1), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, currentheight, -z), new Vector3(0, 0, 1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, currentheight, -z), new Vector3(0, 0, 1), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, 0, -z), new Vector3(0, 0, 1), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
 
                         //left wall
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, 0, -z), new Vector3(-1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, 0, -z - 1), new Vector3(-1, 0, 0), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 1)));
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, currentheight, -z - 1), new Vector3(-1, 0, 0), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, 0, -z), new Vector3(-1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, 0, -z - 1), new Vector3(-1, 0, 0), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 1)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, currentheight, -z - 1), new Vector3(-1, 0, 0), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
 
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, currentheight, -z - 1), new Vector3(-1, 0, 0), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, currentheight, -z), new Vector3(-1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x, 0, -z), new Vector3(-1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, currentheight, -z - 1), new Vector3(-1, 0, 0), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, currentheight, -z), new Vector3(-1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, 0, -z), new Vector3(-1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
 
                         //right wall
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, currentheight, -z - 1), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z - 1), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 1)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, 0, -z), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, currentheight, -z - 1), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, 0, -z - 1), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 1)));
 
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, currentheight, -z - 1), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, 0, -z), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
-                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x + 1, currentheight, -z), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, currentheight, -z - 1), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, 0, -z), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
+                        buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, currentheight, -z), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
                     }
                 }
             }
@@ -338,7 +341,7 @@ namespace TankGame
         protected override void Update(GameTime gameTime)
         {
             tankBrain.updateGrid();
-            float time = (float)gameTime.TotalGameTime.TotalSeconds;
+            time = (float)gameTime.TotalGameTime.TotalSeconds;
 
             // Update the animation properties on the tank object. In a real game
             // you would probably take this data from user inputs or the physics
@@ -477,16 +480,19 @@ namespace TankGame
                 DrawMedikits(viewMatrix, 0.005f);
                 DrawBricks();
                 DrawCity();
-                pos += 0.002f;
-                Debug.WriteLine("count"+verticesList.Count+" "+i);
+                //Debug.WriteLine("count"+verticesList.Count+" "+i);
                // DrawBullet(worldMatrix * Matrix.CreateTranslation(0, 0.17f,-pos), viewMatrix, projectionMatrix, 0.008f);
             }
             verticesList = new List<VertexPositionNormalTexture>();          
             graphics.GraphicsDevice.Viewport = viewports[2];
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1, 0.2f, 10000.0f);
-            viewMatrix = Matrix.CreateLookAt(new Vector3(5, 15, -5f),new Vector3(5, 0, -5f),new Vector3(0, 0, 1));
+            
+            Vector3 newCampos = new Vector3(Game1.size/2f, 3+1.2f*Game1.size, -Game1.size/2f);
+            Vector3 newCamup = new Vector3(0,0,1);
+            Vector3 newTarget = new Vector3(Game1.size /2f, 0, -Game1.size / 2f);
+            viewMatrix = Matrix.CreateLookAt(newCampos,newTarget,newCamup);
             worldMatrix = Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(tank.tankRotation) * Matrix.CreateTranslation(tank.tankPosition);
-            DrawTanks(new Vector3(5, 0, 5f) - new Vector3(5, 21, -5f), new Vector3(0, 0, 1), viewMatrix, 3, 7);
+            DrawTanks(newTarget- newCampos, newCamup, viewMatrix, 3f,7);
             DrawBullets(viewMatrix, 0.05f);
             DrawCoins(viewMatrix, 0.3f);
             DrawMedikits(viewMatrix, 0.015f);

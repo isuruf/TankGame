@@ -10,13 +10,11 @@ namespace TankGame
 {
     public class Brick
     {
-        public Vector3 position;
         public float health;
         public int x, y;
 
         public Brick(int x, int y)
         {
-            this.position = new Vector3(x+0.5f,0.2f,-y-0.5f);
             this.x = x;
             this.y = y;
             this.health = 0;
@@ -27,7 +25,7 @@ namespace TankGame
             int currentbuilding = 5;
                    int currentheight = 1;
 
-                   int x1 = x;
+                   int x1 = Game1.offset-x;
                    int z = y;
                    float imagesInTexture = Game1.imagesInTexture;
             //floor or ceiling
