@@ -114,6 +114,7 @@
     <Compile Include="Bullet.cs" />
     <Compile Include="coin.cs" />
     <Compile Include="Constant.cs" />
+    <Compile Include="brick.cs" />
     <Compile Include="DataObject.cs" />
     <Compile Include="ErrorHandler.cs" />
     <Compile Include="medikit.cs" />

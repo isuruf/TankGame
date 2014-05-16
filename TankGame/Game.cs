@@ -73,6 +73,7 @@ namespace TankGame
 
         public static List<coin> coinList = new List<coin>();
         public static List<medikit> medikitList = new List<medikit>();
+        public static List<brick> brickList = new List<brick>();
 
         TankGameBrain tankBrain;
         private Thread processThread;
@@ -161,13 +162,14 @@ namespace TankGame
             Tank.Initialize();
 
             tankBrain.initGrid();
+            tankBrain.initTanks();
 
-            tank = new Tank(5,3,0);
+            /*tank = new Tank(5,3,0);
             for (int i = 0; i < 4; i++)
             {
                 tankArr[i] = new Tank(i,i,i);
             }
-            tankArr[4]=tank;
+            tankArr[4]=tank;*/
             coin.coinModel = Content.Load<Model>("TyveKrone");
             medikit.medikitModel = Content.Load<Model>("medikit");
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, device.Viewport.AspectRatio, 0.05f, 10000.0f);
@@ -208,7 +210,7 @@ namespace TankGame
                     else
                         currentbuilding= grid[x, z];
                     int currentheight = 1;
-                    if (currentbuilding == 0 || currentbuilding == 3)
+                    if (currentbuilding == 0 || currentbuilding == 4)
                     {
                         currentheight = 0;
                     }
@@ -500,6 +502,7 @@ namespace TankGame
                 DrawBullets(viewMatrix, 0.008f);
                 DrawCoins(viewMatrix, 0.05f);
                 DrawMedikits(viewMatrix, 0.005f);
+                DrawBricks();
                 DrawCity();
                 pos += 0.002f;
                 Debug.WriteLine("count"+verticesList.Count+" "+i);
@@ -508,12 +511,13 @@ namespace TankGame
             verticesList = new List<VertexPositionNormalTexture>();          
             graphics.GraphicsDevice.Viewport = viewports[2];
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1, 0.2f, 10000.0f);
-            viewMatrix = Matrix.CreateLookAt(new Vector3(7, 15, -7f),new Vector3(7, 0, -7f),new Vector3(1, 0, 0));
+            viewMatrix = Matrix.CreateLookAt(new Vector3(5, 15, -5f),new Vector3(5, 0, -5f),new Vector3(0, 0, 1));
             worldMatrix = Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(tank.tankRotation) * Matrix.CreateTranslation(tank.tankPosition);
-            DrawTanks(new Vector3(10, 0, -7.5f) - new Vector3(10, 21, -7.5f), new Vector3(1, 0, 0), viewMatrix, 3, 7);
+            DrawTanks(new Vector3(5, 0, 5f) - new Vector3(5, 21, -5f), new Vector3(0, 0, 1), viewMatrix, 3, 7);
             DrawBullets(viewMatrix, 0.05f);
             DrawCoins(viewMatrix, 0.3f);
             DrawMedikits(viewMatrix, 0.015f);
+            DrawBricks();
             DrawCity();
             //DrawBullet(worldMatrix * Matrix.CreateTranslation(0, 0.2f, -pos), viewMatrix, projectionMatrix, 0.015f);
 
@@ -555,6 +559,14 @@ namespace TankGame
             {
                 bullet.MoveForward();
                 bullet.Draw(viewMatrix, scale);
+            }
+        }
+        public void DrawBricks()
+        {
+            foreach (brick brik in brickList)
+            {
+                if(brik.health > 0)
+                    brik.AddToDraw();
             }
         }
         public void DrawCoins(Matrix viewMatrix, float scale)

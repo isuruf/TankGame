@@ -36,6 +36,7 @@ namespace TankGame
         public int direction;
         public int x;
         public int y;
+        public int num;
 
 
         // Shortcut references to the bones that we are going to animate.
@@ -71,11 +72,11 @@ namespace TankGame
 
 
         // Current animation positions.
-        float wheelRotationValue;
-        float steerRotationValue;
-        float turretRotationValue;
-        float cannonRotationValue;
-        float hatchRotationValue;
+        float wheelRotationValue=0;
+        float steerRotationValue=0;
+        float turretRotationValue=0;
+        float cannonRotationValue=0;
+        float hatchRotationValue=0;
 
 
         #endregion
@@ -141,7 +142,7 @@ namespace TankGame
             this.health = health;
             this.direction = direction;
         }
-        public Tank(int x,int y, int direction)
+        public Tank(int x,int y, int direction, int num)
         {
             this.tankPosition = new Vector3(x+0.5f,0,-y-0.5f);
             this.tankRotation = Quaternion.CreateFromAxisAngle(Vector3.UnitY, direction * MathHelper.PiOver2);
@@ -149,6 +150,7 @@ namespace TankGame
             this.direction = direction;
             this.x = x;
             this.y = y;
+            this.num = num;
         }
 
         /// <summary>
