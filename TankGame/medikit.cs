@@ -13,6 +13,7 @@ namespace TankGame
         public static Model medikitModel;
         public Vector3 position;
         public int x,y;
+        public float liveTime;
         public float speed;
         public float angle = 0;
         public Quaternion initRotation = new Quaternion(1, 0, 0, (float)Math.Cos(7 * MathHelper.Pi / 12));
@@ -29,13 +30,24 @@ namespace TankGame
             this.speed = speed;
             //            this.player = player;
         }
-        public Medikit(int x, int y)
+        public Medikit(int x, int y, float liveTime)
         {
-            this.position = new Vector3(x+0.5f,0.2f,-y-0.5f);
+            this.position = new Vector3(Game1.size - x - 0.5f, 0.2f, -y - 0.5f);
             this.speed = MathHelper.ToRadians(6f);
             this.x = x;
             this.y = y;
+            this.liveTime = liveTime;
         }
+
+        public void update(float currentTime)
+        {
+            int remainingTime = (int)(liveTime - currentTime);
+            //Console.WriteLine("position= "+position+ " remtym = "+remainingTime);
+            this.speed = MathHelper.ToRadians(20f * 10 / (1 + remainingTime));
+            if (remainingTime <= 0)
+                Game1.medikitList.Remove(this);
+        }
+
         public void Draw(Matrix view, float scale)
         {
             Matrix[] boneTransforms = new Matrix[medikitModel.Bones.Count];

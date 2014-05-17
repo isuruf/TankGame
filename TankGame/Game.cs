@@ -165,7 +165,6 @@ namespace TankGame
 
             tankBrain.initGrid();
             tankBrain.initTanks();
-            tankBrain.placeCoins();
 
           /*  tank = new Tank(5,3,0,4);
             for (int i = 0; i < 4; i++)
@@ -181,7 +180,7 @@ namespace TankGame
             SetUpVertices();
             //SetUpBoundingBoxes();
             //coinList.Add(new Coin(new Vector3(5.5f, .2f, -3.5f), MathHelper.ToRadians(6f)));
-            medikitList.Add(new Medikit(new Vector3(6.5f, .3f, -3.5f), MathHelper.ToRadians(6f)));
+            //medikitList.Add(new Medikit(new Vector3(6.5f, .3f, -3.5f), MathHelper.ToRadians(6f)));
         }
 
         private void SetUpVertices()
@@ -343,8 +342,12 @@ namespace TankGame
         protected override void Update(GameTime gameTime)
         {
             tankBrain.updateGrid();
+            tankBrain.placeCoins();
+            tankBrain.placeMedikits();
+            time = (float)gameTime.TotalGameTime.TotalMilliseconds;
+            Console.WriteLine("time = " + time);
             updateCoins();
-            time = (float)gameTime.TotalGameTime.TotalSeconds;
+            updateMedikits();
 
             // Update the animation properties on the tank object. In a real game
             // you would probably take this data from user inputs or the physics
@@ -368,9 +371,18 @@ namespace TankGame
         }
         public void updateCoins()
         {
-            foreach (Coin coin in coinList)
+            for(int i = 0; i<coinList.Count(); ++i)
             {
-                coin.coinUpdate(time);
+                coinList.ElementAt(i).update(time);
+                //coin.;
+            }
+        }
+        public void updateMedikits()
+        {
+            for (int i = 0; i < medikitList.Count(); ++i)
+            {
+                medikitList.ElementAt(i).update(time);
+                //coin.;
             }
         }
         public void UpdateCameras()

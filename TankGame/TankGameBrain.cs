@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Diagnostics;
+using Microsoft.Xna.Framework;
 
 namespace TankGame
 {
@@ -179,9 +180,30 @@ namespace TankGame
 
                     int x = int.Parse(coordinates[0]);
                     int y = int.Parse(coordinates[1]);
-                    float liveTime = int.Parse(CMsg[1]);
+                    float liveTime = float.Parse(CMsg[1]);
                     int value = int.Parse(CMsg[2]);
+                    //Game1.coinList.Add(new Coin(new Vector3(x+5.5f, .2f, y-3.5f), MathHelper.ToRadians(6f)));
                     Game1.coinList.Add(new Coin(x, y, value, liveTime));
+                }
+            }
+        }
+
+        public void placeMedikits()
+        {
+            String Lmessage = conn.giveLastLifePack();
+            if (Lmessage != null)
+            {
+                Lmessage = Lmessage.Substring(2, Lmessage.Length - 3);
+                String[] LMsg = Lmessage.Split(':');
+
+                for (int i = 0; i < LMsg.Length; ++i)
+                {
+                    String[] coordinates = LMsg[0].Split(',');
+
+                    int x = int.Parse(coordinates[0]);
+                    int y = int.Parse(coordinates[1]);
+                    float liveTime = float.Parse(LMsg[1]);
+                    Game1.medikitList.Add(new Medikit(x, y, liveTime));
                 }
             }
         }
