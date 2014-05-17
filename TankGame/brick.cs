@@ -12,12 +12,14 @@ namespace TankGame
     {
         public int health;
         public int x, y;
+        public BoundingSphere sphere;
 
         public Brick(int x, int y)
         {
             this.x = x;
             this.y = y;
             this.health = 4;
+            sphere = new BoundingSphere(new Vector3(Game1.size - x - 0.5f, 0.5f, -y - 0.5f), 0.5f);
         }
 
         public void AddToDraw()

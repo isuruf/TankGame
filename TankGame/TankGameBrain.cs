@@ -159,9 +159,15 @@ namespace TankGame
                     int x = int.Parse(status[0]);
                     int y = int.Parse(status[1]);
                     int health = int.Parse(status[2]);
-                    Game1.brickArray[x, y].update(health);
-                    if (health == 0)
-                        Game1.brickList.Remove(Game1.brickArray[x, y]);
+                    if (Game1.brickArray[x, y] != null)
+                    {
+                        Game1.brickArray[x, y].update(health);
+                        if (health == 0)
+                        {
+                            Game1.brickList.Remove(Game1.brickArray[x, y]);
+                            Game1.brickArray[x, y] = null;
+                        }
+                    }
                 }
             }
         }
@@ -183,6 +189,9 @@ namespace TankGame
                     float liveTime = float.Parse(CMsg[1]);
                     int value = int.Parse(CMsg[2]);
                     //Game1.coinList.Add(new Coin(new Vector3(x+5.5f, .2f, y-3.5f), MathHelper.ToRadians(6f)));
+
+                    //Console.WriteLine("x coo = " + x);
+                    //Console.WriteLine("y coo = " + y);
                     Game1.coinList.Add(new Coin(x, y, value, liveTime));
                 }
             }

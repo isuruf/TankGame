@@ -17,6 +17,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Media;
 using System.Diagnostics;
 using System;
+using System.Linq;
 #endregion
 
 namespace TankGame
@@ -43,6 +44,7 @@ namespace TankGame
         public int coins = 0;
         public Queue<Tuple<float, float, float>> moveQueue = new Queue<Tuple<float, float,float>>();
         public float dead = 0;
+        public BoundingSphere sphere;
 
 
         // Shortcut references to the bones that we are going to animate.
@@ -157,6 +159,26 @@ namespace TankGame
             this.x = x;
             this.y = y;
             this.num = num;
+            sphere = new BoundingSphere(tankPosition+Vector3.Up*0.5f,0.5f);
+        }
+
+        public void checkCollisions()
+        {
+            for (int i = 0; i < Game1.medikitList.Count; ++i)
+            {
+                if (Game1.medikitList.ElementAt(i).sphere.Contains(this.sphere) != ContainmentType.Disjoint)
+                {
+                    Debug.WriteLine("Medikit removed " + Game1.medikitList.ElementAt(i).x + " " + Game1.medikitList.ElementAt(i).y);
+                    Game1.medikitList.RemoveAt(i--);
+                }
+            }
+            for (int i = 0; i < Game1.coinList.Count; ++i)
+            {
+                if (Game1.coinList.ElementAt(i).sphere.Contains(this.sphere) != ContainmentType.Disjoint)
+                {
+                    Game1.coinList.RemoveAt(i--);
+                }
+            }
         }
 
         /// <summary>
@@ -323,6 +345,7 @@ namespace TankGame
                 //TurretRotation = SteerRotation;
 
                 tankPosition +=  new Vector3(-tuple.Item2,0,-tuple.Item3);
+                sphere.Center = tankPosition + Vector3.Up * 0.5f;
             }
         }
         public void updatePosition(int x, int y, int direction, int shot, int score, int coins, float health)
@@ -355,7 +378,7 @@ namespace TankGame
             if (shot == 1)
             {
                 Bullet newBullet = new Bullet(tankPosition + Vector3.Transform(new Vector3(0, 0.17f, -0.05f),
-                    tankRotation), tankRotation, 1.5f / 60.0f);
+                    tankRotation), tankRotation, 1.5f / 60.0f, num);
                 Game1.bulletList.Add(newBullet);
             }
 

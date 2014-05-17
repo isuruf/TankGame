@@ -12,32 +12,35 @@ namespace TankGame
     {
         public static Model coinModel;
         public Vector3 position;
-        public int value;
+        public int value, x, y; 
         public float liveTime;
         public float deadTime;
         public float speed;
         public float angle=0;
-        public Quaternion initRotation = new Quaternion(1, 0, 0, (float)Math.Cos(7*MathHelper.Pi/12));
+        public Quaternion initRotation = new Quaternion(1, 0, 0, (float)Math.Cos(7 * MathHelper.Pi / 12));
+        public BoundingSphere sphere;
 
         public Coin(Vector3 position, float speed)
         {
             this.position = position;
             this.speed = speed;
+            sphere = new BoundingSphere(position, 0.5f);
         }
         public Coin(int x, int y, int value, float liveTime)
         {
             this.position = new Vector3(Game1.size-x-0.5f,0.2f,-y-0.5f);
+            this.x = x;
+            this.y = y;
             this.value = value;
             this.deadTime = Game1.time + liveTime;
             this.liveTime = liveTime;
             this.speed = MathHelper.ToRadians(20f);
+            sphere = new BoundingSphere(position, 0.5f);
         }
 
         public void update(float currentTime)
         {
-            int remainingTime = (int)(deadTime - currentTime);
-            //Console.WriteLine("position= "+position+ " remtym = "+remainingTime);
-            //this.speed = MathHelper.ToRadians(20f * (float)Math.Pow(liveTime/remainingTime,1.5f));
+            float remainingTime = (deadTime - currentTime);
             if (remainingTime<6000)
                 this.speed = MathHelper.ToRadians(20f+(6000-remainingTime)/20f);
             if (remainingTime <= 0)

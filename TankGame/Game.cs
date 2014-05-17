@@ -90,8 +90,7 @@ namespace TankGame
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            Content.RootDirectory = "Content"; 
-            
+            Content.RootDirectory = "Content";
         }
 
         protected override void Initialize()
@@ -342,25 +341,25 @@ namespace TankGame
         protected override void Update(GameTime gameTime)
         {
             tankBrain.updateGrid();
-            time = (float)gameTime.TotalGameTime.TotalSeconds;
+            time = (float)gameTime.TotalGameTime.TotalMilliseconds;
 
             ProcessKeyboard(gameTime);
             for (int i = 0; i < 5; i++)
             {
                 if (tankArr[i] != null)
+                {
                     tankArr[i].update();
-            }tankBrain.placeCoins();
+                    tankArr[i].checkCollisions();
+                }
+            }
+            tankBrain.placeCoins();
             tankBrain.placeMedikits();
-            time = (float)gameTime.TotalGameTime.TotalMilliseconds;
-            Console.WriteLine("time = " + time);
             updateCoins();
             updateMedikits();
-
-        
+            //Console.WriteLine("time = " + time);
 
             UpdateCameras();
             
-
             base.Update(gameTime);
         }
         public void updateCoins()
@@ -463,11 +462,10 @@ namespace TankGame
                 
                 if (currentTime - tank.lastBulletTime > 500)
                 {
-                    Bullet newBullet = new Bullet(tank.tankPosition + Vector3.Transform(new Vector3(0, 0.17f, -0.05f), 
-                        tank.tankRotation), tank.tankRotation, 1.5f*speed/60.0f);
+                    Bullet newBullet = new Bullet(tank.tankPosition + Vector3.Transform(new Vector3(0, 0.17f, -0.05f),
+                        tank.tankRotation), tank.tankRotation, 3f * speed / 60.0f, tank.num);
                     bulletList.Add(newBullet);
                     tank.lastBulletTime = currentTime;
-                    
                 }
             }
 
@@ -505,7 +503,7 @@ namespace TankGame
                     Quaternion.CreateFromAxisAngle(new Vector3(0, -1, 0), leftRightRot);
                 tank.tankRotation *= additionalRot;
                 Math.Acos(tank.tankRotation.W * 2);
-                Debug.WriteLine(MathHelper.ToDegrees((float)Math.Acos(tank.tankRotation.W) * 2));
+                //Debug.WriteLine(MathHelper.ToDegrees((float)Math.Acos(tank.tankRotation.W) * 2));
                 Vector3 addVector = Vector3.Transform(new Vector3(0, 0, -1), tank.tankRotation);
                 tank.tankPosition += addVector * upDownRot;
             }

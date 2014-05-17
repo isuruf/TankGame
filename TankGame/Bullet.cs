@@ -14,6 +14,8 @@ namespace TankGame
         public Vector3 position;
         public Quaternion rotation;
         public float speed;
+        public int tankNum;
+        public BoundingSphere sphere;
  //       public int player;
 
         public void MoveForward()
@@ -21,11 +23,13 @@ namespace TankGame
             Vector3 addVector = Vector3.Transform(new Vector3(0, 0, -1), rotation);
             position += addVector * speed;
         }
-        public Bullet(Vector3 position, Quaternion rotation, float speed)
+        public Bullet(Vector3 position, Quaternion rotation, float speed, int tankNum)
         {
             this.position = position;
             this.rotation = rotation;
             this.speed = speed;
+            this.tankNum = tankNum;
+            sphere = new BoundingSphere(new Vector3(position.X,0.5f,position.Z), 0.5f);
 //            this.player = player;
         }
         public void Draw(Matrix view,float scale)
