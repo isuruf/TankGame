@@ -83,6 +83,7 @@ namespace TankGame
                 String[] coordinates = stoneLocations[i].Split(',');
                 int x = int.Parse(coordinates[0]);
                 int y = int.Parse(coordinates[1]);
+                Game1.stoneList.Add(new BoundingSphere(new Vector3(Game1.size-x-0.5f,0.5f,-y-0.5f),0.5f));
                 Game1.grid[x, y] = 2;//Stones are ones
             }
 

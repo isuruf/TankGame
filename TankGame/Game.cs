@@ -75,6 +75,7 @@ namespace TankGame
         public static List<Coin> coinList = new List<Coin>();
         public static List<Medikit> medikitList = new List<Medikit>();
         public static List<Brick> brickList = new List<Brick>();
+        public static List<BoundingSphere> stoneList = new List<BoundingSphere>();
         public static Brick[,] brickArray = new Brick[20, 20];
 
         TankGameBrain tankBrain;
@@ -356,6 +357,7 @@ namespace TankGame
             tankBrain.placeMedikits();
             updateCoins();
             updateMedikits();
+            updateBullets();
             //Console.WriteLine("time = " + time);
 
             UpdateCameras();
@@ -381,9 +383,10 @@ namespace TankGame
 
         public void updateBullets()
         {
-            foreach (Bullet bullet in bulletList)
+            for (int i = 0; i < bulletList.Count(); ++i)
             {
-                bullet.MoveForward();
+                bulletList.ElementAt(i).MoveForward();
+                bulletList.ElementAt(i).checkCollisions();
             }
         }
 
