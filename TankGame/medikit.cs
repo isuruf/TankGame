@@ -19,10 +19,6 @@ namespace TankGame
         public Quaternion initRotation = new Quaternion(1, 0, 0, (float)Math.Cos(7 * MathHelper.Pi / 12));
         //       public int player;
 
-        public void MoveForward()
-        {
-            angle += speed;
-        }
         public Medikit(Vector3 position, float speed)
         {
             this.position = position;
@@ -43,9 +39,11 @@ namespace TankGame
         {
             int remainingTime = (int)(liveTime - currentTime);
             //Console.WriteLine("position= "+position+ " remtym = "+remainingTime);
-            this.speed = MathHelper.ToRadians(20f * 10 / (1 + remainingTime));
+            if (remainingTime < 6000)
+                this.speed = MathHelper.ToRadians(20f + (6000 - remainingTime) / 20f);
             if (remainingTime <= 0)
                 Game1.medikitList.Remove(this);
+            angle += speed;
         }
 
         public void Draw(Matrix view, float scale)

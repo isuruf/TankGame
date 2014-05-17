@@ -148,12 +148,12 @@ namespace TankGame
         {
             tankBrain = new TankGameBrain();
             
-            /*processThread = new Thread(new ThreadStart(tankBrain.process));
+            processThread = new Thread(new ThreadStart(tankBrain.process));
             processThread.Priority = ThreadPriority.Normal;
             tankBrain.startGame();
             tankBrain.waitGameStarted();
             processThread.Start();
-            */
+            
             
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
@@ -165,15 +165,15 @@ namespace TankGame
             Bullet.bulletModel = Content.Load<Model>("bullet");
             Tank.Initialize();
 
-/*            tankBrain.initGrid();
+            tankBrain.initGrid();
             tankBrain.initTanks();
-*/
+            /*
             tank = new Tank(5,3,0,4);
             for (int i = 0; i < 4; i++)
             {
                 tankArr[i] = new Tank(i,i,i,i);
             }
-            tankArr[4]=tank;
+            tankArr[4]=tank;*/
             Coin.coinModel = Content.Load<Model>("TyveKrone");
             Medikit.medikitModel = Content.Load<Model>("medikit");
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, device.Viewport.AspectRatio, 0.05f, 10000.0f);
@@ -341,14 +341,14 @@ namespace TankGame
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
-            //tankBrain.updateGrid();
+            tankBrain.updateGrid();
             time = (float)gameTime.TotalGameTime.TotalSeconds;
 
             ProcessKeyboard(gameTime);
             for (int i = 0; i < 5; i++)
             {
                 if (tankArr[i] != null)
-                    tankArr[i].Move();
+                    tankArr[i].update();
             }tankBrain.placeCoins();
             tankBrain.placeMedikits();
             time = (float)gameTime.TotalGameTime.TotalMilliseconds;
@@ -379,8 +379,15 @@ namespace TankGame
                 //coin.;
             }
         }
-           
-        
+
+        public void updateBullets()
+        {
+            foreach (Bullet bullet in bulletList)
+            {
+                bullet.MoveForward();
+            }
+        }
+
         public void UpdateCameras()
         {
             for (int i = 0; i < 2; i++)
@@ -625,7 +632,6 @@ namespace TankGame
         {
             foreach (Bullet bullet in bulletList)
             {
-                bullet.MoveForward();
                 bullet.Draw(viewMatrix, scale);
             }
         }
@@ -641,7 +647,6 @@ namespace TankGame
         {
             foreach (Coin coin in coinList)
             {
-                coin.MoveForward();
                 coin.Draw(viewMatrix, scale);
             }
         }
@@ -649,14 +654,8 @@ namespace TankGame
         {
             foreach (Medikit medikit in medikitList)
             {
-                medikit.MoveForward();
                 medikit.Draw(viewMatrix, scale);
             }
-        }
-        public void MoveForward()
-        {
-
-            
         }
 
         #endregion

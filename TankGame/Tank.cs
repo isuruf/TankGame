@@ -42,6 +42,7 @@ namespace TankGame
         public int score = 0;
         public int coins = 0;
         public Queue<Tuple<float, float, float>> moveQueue = new Queue<Tuple<float, float,float>>();
+        public float dead = 0;
 
 
         // Shortcut references to the bones that we are going to animate.
@@ -266,10 +267,10 @@ namespace TankGame
                 {
                     
                     Effect effect = part.Effect;
-                    float time = 0;// Game1.time / 4;
-                    effect.Parameters["TranslationAmount"].SetValue(50 * time);
-                    effect.Parameters["RotationAmount"].SetValue(MathHelper.Pi * 3 * time);
-                    effect.Parameters["time"].SetValue(time);
+                    //float time = 0; Game1.time / 4;
+                    effect.Parameters["TranslationAmount"].SetValue(50 * dead);
+                    effect.Parameters["RotationAmount"].SetValue(MathHelper.Pi * 3 * dead);
+                    effect.Parameters["time"].SetValue(dead);
                     effect.Parameters["WorldViewProjection"].SetValue(
                         boneTransforms[mesh.ParentBone.Index] * view * projection);
                     effect.Parameters["World"].SetValue(boneTransforms[mesh.ParentBone.Index]);
@@ -291,8 +292,9 @@ namespace TankGame
             }
         }
         
-        public void Move()
+        public void update()
         {
+            //if (health<= 0 && dead < 0.1f) dead+=0.01f;
             if (moveQueue.Count != 0)
             {
                 Tuple<float, float,float> tuple = moveQueue.Dequeue();
