@@ -22,6 +22,7 @@ namespace TankGame
         {
             Vector3 addVector = Vector3.Transform(new Vector3(0, 0, -1), rotation);
             position += addVector * speed;
+            sphere.Center = new Vector3(position.X,0.5f,position.Z);
         }
         public Bullet(Vector3 position, Quaternion rotation, float speed, int tankNum)
         {
@@ -29,7 +30,7 @@ namespace TankGame
             this.rotation = rotation;
             this.speed = speed;
             this.tankNum = tankNum;
-            sphere = new BoundingSphere(new Vector3(position.X,0.5f,position.Z), 0.5f);
+            sphere = new BoundingSphere(new Vector3(position.X,0.5f,position.Z), 0.35f);
 //            this.player = player;
         }
         public void Draw(Matrix view,float scale)
@@ -56,6 +57,33 @@ namespace TankGame
                 }
 
                 mesh.Draw();
+            }
+        }
+
+        public void checkCollisions()
+        {
+            for (int i = 0; i < 5; ++i)
+            {
+                if (Game1.tankArr[i] != null && Game1.tankArr[i].sphere.Contains(this.sphere) != ContainmentType.Disjoint)
+                {
+                    //Debug.WriteLine("Medikit removed " + Game1.medikitList.ElementAt(i).x + " " + Game1.medikitList.ElementAt(i).y);
+                    if(Game1.tankArr[i].num != tankNum)
+                        Game1.bulletList.Remove(this);
+                }
+            }
+            for (int i = 0; i < Game1.brickList.Count; ++i)
+            {
+                if (Game1.brickList.ElementAt(i).sphere.Contains(this.sphere) != ContainmentType.Disjoint)
+                {
+                    Game1.bulletList.Remove(this);
+                }
+            }
+            for (int i = 0; i < Game1.stoneList.Count; ++i)
+            {
+                if (Game1.stoneList.ElementAt(i).Contains(this.sphere) != ContainmentType.Disjoint)
+                {
+                    Game1.bulletList.Remove(this);
+                }
             }
         }
     }

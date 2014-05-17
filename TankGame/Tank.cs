@@ -168,7 +168,7 @@ namespace TankGame
             {
                 if (Game1.medikitList.ElementAt(i).sphere.Contains(this.sphere) != ContainmentType.Disjoint)
                 {
-                    Debug.WriteLine("Medikit removed " + Game1.medikitList.ElementAt(i).x + " " + Game1.medikitList.ElementAt(i).y);
+                    //Debug.WriteLine("Medikit removed " + Game1.medikitList.ElementAt(i).x + " " + Game1.medikitList.ElementAt(i).y);
                     Game1.medikitList.RemoveAt(i--);
                 }
             }
@@ -378,7 +378,7 @@ namespace TankGame
             if (shot == 1)
             {
                 Bullet newBullet = new Bullet(tankPosition + Vector3.Transform(new Vector3(0, 0.17f, -0.05f),
-                    tankRotation), tankRotation, 1.5f / 60.0f, num);
+                    tankRotation), tankRotation, 3f / 60.0f, num);
                 Game1.bulletList.Add(newBullet);
             }
 
