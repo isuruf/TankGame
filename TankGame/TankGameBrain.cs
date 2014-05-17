@@ -11,6 +11,7 @@ namespace TankGame
         private NetworkConnection conn;
         private Thread reciveThread;
         private ErrorHandler eHandler;
+        private AI ai = new AI();
         private bool finished;
         private int playerName;
         public TankGameBrain()
@@ -120,7 +121,7 @@ namespace TankGame
                 int y = int.Parse(coordinates[1]);
                 int direction = int.Parse(playerData[2]);
                 Game1.tankArr[playerNum] = new Tank(x,y,direction,playerNum);
-       //    if (playerNum != this.playerName)
+                if (playerNum == this.playerName)
                     Game1.tank = Game1.tankArr[playerNum];
 
             }
@@ -219,7 +220,9 @@ namespace TankGame
 
         public void process()
         {
-            String command = Game1.command;
+            String command ="SHOOT#";
+            if (conn.gameSAccepted && Game1.tank != null)
+                command = AI.nextCommand(Game1.tank);
             while (!eHandler.isGameFinished())
             {
                 if (!eHandler.isMyPlayerDead())
@@ -246,7 +249,9 @@ namespace TankGame
                     break;///display in gui
                     //throw new GameFinishedException();
                 }
-                command = Game1.command;
+                command = "SHOOT#";
+                if (conn.gameSAccepted&&Game1.tank!=null)
+                    command = AI.nextCommand(Game1.tank);
                 //Thread.Sleep(1000);
             }
 

@@ -112,6 +112,7 @@
   <ItemGroup>
     <Compile Include="brick.cs" />
     <Compile Include="Bullet.cs" />
+    <Compile Include="AI.cs" />
     <Compile Include="coin.cs" />
     <Compile Include="Constant.cs" />
     <Compile Include="DataObject.cs" />

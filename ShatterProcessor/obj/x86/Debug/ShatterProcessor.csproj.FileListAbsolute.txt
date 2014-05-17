@@ -6,3 +6,8 @@ C:\xampp\htdocs\TankGame\ShatterProcessor\bin\x86\Debug\TankGame.dll
 C:\xampp\htdocs\TankGame\ShatterProcessor\bin\x86\Debug\TankGame.pdb
 C:\xampp\htdocs\TankGame\ShatterProcessor\obj\x86\Debug\TankGame.dll
 C:\xampp\htdocs\TankGame\ShatterProcessor\obj\x86\Debug\TankGame.pdb
+C:\Users\User\Documents\Visual Studio 2012\Projects\TankGame\ShatterProcessor\bin\x86\Debug\TankGame.dll
+C:\Users\User\Documents\Visual Studio 2012\Projects\TankGame\ShatterProcessor\bin\x86\Debug\TankGame.pdb
+C:\Users\User\Documents\Visual Studio 2012\Projects\TankGame\ShatterProcessor\obj\x86\Debug\TankGame.dll
+C:\Users\User\Documents\Visual Studio 2012\Projects\TankGame\ShatterProcessor\obj\x86\Debug\TankGame.pdb
+C:\Users\User\Documents\Visual Studio 2012\Projects\TankGame\ShatterProcessor\obj\x86\Debug\ShatterProcessor.csprojResolveAssemblyReference.cache
