@@ -18,7 +18,7 @@ namespace TankGame
         public static int size = Game1.size;
         public static coord[,] coArr = new coord[size, size];
         public static Boolean[,] gridOccupied = new Boolean[size, size];
-        public static Boolean[,] coinArray = new Boolean[size, size];
+        public static int[,] coinArray = new int[size, size];
         static coord nextcoin;
         static int nextCoinCost = 1000;
         public AI()
@@ -45,7 +45,7 @@ namespace TankGame
         {
             for (int i = 0; i < Game1.size; i++)
                 for (int j = 0; j < Game1.size; j++)
-                    coinArray[i, j] = false;
+                    coinArray[i, j] = 0;
 
             Debug.WriteLine("starting calculating " + tank.x + " " + tank.y);
             /* int direction = tank.direction;
@@ -83,39 +83,94 @@ namespace TankGame
             Boolean cache = true;
 
 
-            if (Game1.coinList.Count == 0)
-                return message[4];
+            
 
             for (int c = 0; c < Game1.coinList.Count; c++)
             {
                 Coin coin = Game1.coinList.ElementAt(c);
-                coinArray[coin.x, coin.y] = true;
+                coinArray[coin.x, coin.y] = 1;
+            }
+            for (int c = 0; c < Game1.medikitList.Count; c++)
+            {
+                Medikit medikit = Game1.medikitList.ElementAt(c);
+                coinArray[medikit.x, medikit.y] = 2;
+            }
+            for (int j = 0; j < 5; j++)
+            {
+                if (Game1.tankArr[j] != null && Game1.tankArr[j] != tank && Game1.tankArr[j].health>0)
+                {
+                    coinArray[Game1.tankArr[j].x, Game1.tankArr[j].y] = 3;
+                }
             }
 
             coord cur = coArr[tank.x, tank.y];
             cur.length[tank.direction] = 1;
             queue.Enqueue(new Tuple<coord, int>(cur, tank.direction));
 
-            coord next;
+            
             int loop, nextX, nextY;
-            while (queue.Count != 0)
+            int maxLength = 0;
+            int medikitdir = -1;
+            int tankdir = -1;
+            while (queue.Count != 0&&maxLength<=100)
             {
+                
                 Tuple<coord, int> t = queue.Dequeue();
                 coord c = t.Item1;
                 int dir = t.Item2;
-                if (coinArray[c.x, c.y])
+                if (coinArray[c.x, c.y]==1||(coinArray[c.x,c.y]==2&&medikitdir==-1)
+                    || (coinArray[c.x, c.y] == 3 && tankdir == -1))
                 {
-                    Debug.WriteLine("found coin");
-                    int nextdir = getDir(c, tank);
-
-                    if (nextdir != -1)
+                    
+                    int length = c.getLength();
+                    Boolean go = true;
+                    for (int j = 0; j < 5; j++)
                     {
-                        //nextcoin = coArr[c.x, c.y];
-                        //nextCoinCost=nextcoin.getLength()-1;
-                        return message[nextdir];
+                        if (Game1.tankArr[j] != null && Game1.tankArr[j] != tank&&Game1.tankArr[j].health!=0)
+                        {
+                            if (Math.Abs(Game1.tankArr[j].x - c.x) + Math.Abs(Game1.tankArr[j].y - c.y)*2<length)
+                            {
+                                go = false;
+                            }
+                        }
+                    }
+                    if (go)
+                    {
+                        int nextdir = getDir(c, tank);
+                        coord temp = coArr[tank.x, tank.y].getNext(nextdir);
+
+                        if (temp==null||gridOccupied[temp.x, temp.y])
+                            go=false;
+                        if (nextdir != -1&&go)
+                        {
+                            if (coinArray[c.x, c.y] == 2)
+                            {
+                                medikitdir = nextdir;
+                            }
+                            else if(coinArray[c.x, c.y] == 1)
+                            {
+                                Debug.WriteLine("Going to coin at "+c.x+" "+c.y+" by going to "+temp.x+" "+temp.y+" by "+nextdir);
+                              /*  for (int k = 0; k < Game1.size; k++)
+                                {
+                                    for (int l = 0; l < Game1.size; l++)
+                                    {
+                                        Debug.Write(coArr[k,l].getLength()+" \t");
+                                    }
+                                    Debug.WriteLine("");
+                                }*/
+                                    return message[nextdir];
+                            }
+                            else if (coinArray[c.x, c.y] == 3)
+                            {
+                                tankdir = nextdir;
+                            }
+
+                        }
+                        if (!go)
+                            Debug.WriteLine("ERROR");
                     }
                 }
-                Debug.WriteLine("travel " + c.x + " " + c.y + " length:" + c.length[dir] + " " + dir);
+                //Debug.WriteLine("travel " + c.x + " " + c.y + " length:" + c.length[dir] + " " + dir);
                 c.discovered[dir] = 1;
                 //rotate
                 for (int i = 0; i < 4; i++)
@@ -123,6 +178,7 @@ namespace TankGame
                     if (c.length[i] == 0)
                     {
                         c.length[i] = c.length[dir] + 1;
+                        maxLength = c.length[i];
                         queue.Enqueue(new Tuple<coord, int>(c, i));
                     }
                 }
@@ -137,7 +193,7 @@ namespace TankGame
                         target.prevY = c.y;
                         //nextMove[tank.x,tank.y,tank.direction,target.x,target.y] = c.dir+1;
                     }
-                    Debug.WriteLine("travel " + c.x + " " + c.y + " target:" + target.x + " " + target.y + " dir:" + dir);
+                    //Debug.WriteLine("travel " + c.x + " " + c.y + " target:" + target.x + " " + target.y + " dir:" + dir);
                     queue.Enqueue(new Tuple<coord, int>(target, dir));
                 }
                 /*   else if (target != null )
@@ -147,15 +203,55 @@ namespace TankGame
                        else
                            Debug.WriteLine("not free");
                    }*/
-
-
+                if (Game1.coinList.Count == 0)
+                    maxLength = 11;
+                if (maxLength == 11)
+                {
+                    if (medikitdir != -1)
+                    {
+                        Debug.WriteLine("Going to medikit");
+                        return message[medikitdir];
+                    }
+                    coord next = coArr[tank.x, tank.y];
+                    for (int i = 0; i < 10; i++)
+                    {
+                        next = next.getNext(tank.direction);
+                        if (next == null)
+                            break;
+                        if (coinArray[next.x, next.y] == 3)
+                        {
+                            Debug.WriteLine("shooting tank");
+                            return message[4];
+                        }
+                    }
+                    if (tankdir != -1)
+                    {
+                        Debug.WriteLine("Going to tank");
+                        return message[tankdir];
+                    }
+                    
+                }
             }
-
-            return "SHOOT";
+           
+            
+            int dist = Math.Abs(tank.x - 3*size / 8) + Math.Abs(tank.y - size / 2);
+            for (int i = 0; i < 4; i++)
+            {
+                coord next = coArr[tank.x, tank.y].getNext(i);
+                if (next == null)
+                    continue;
+                int dist2=Math.Abs(next.x - 3*size /8 ) + Math.Abs(next.y - size / 2);
+                if (!gridOccupied[next.x, next.y]&&dist2<dist)
+                {
+                    Debug.WriteLine("Going to middle");
+                    return message[i];
+                }
+            }
+            return "SHOOT#";
         }
         public static int getDir(coord target, Tank tank)
         {
-            Debug.WriteLine("Going from " + tank.x + "," + tank.y + " to " + target.x + "," + target.y + " ");
+            Debug.WriteLine("Going from " + tank.x + "," + tank.y + " to " + target.x + "," + target.y + " "+Game1.tank.direction);
             int loop = 0;
             coord next = target;
             while (loop < 200 && next != null)

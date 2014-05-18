@@ -321,6 +321,8 @@ namespace TankGame
             {
                 Tuple<float, float,float> tuple = moveQueue.Dequeue();
                 float turningSpeed = MathHelper.ToRadians(1.5f);
+                if (tuple == null)
+                    return;
                 float turn = tuple.Item1;
 
                 WheelRotation += Math.Abs(tuple.Item3)+Math.Abs(tuple.Item2)* 2;

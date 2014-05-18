@@ -342,7 +342,7 @@ namespace TankGame
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
-            tankBrain.updateGrid();
+            //tankBrain.updateGrid();
             time = (float)gameTime.TotalGameTime.TotalMilliseconds;
 
             ProcessKeyboard(gameTime);
@@ -632,31 +632,31 @@ namespace TankGame
         }
         public void DrawBullets(Matrix viewMatrix, float scale)
         {
-            foreach (Bullet bullet in bulletList)
-            {
-                bullet.Draw(viewMatrix, scale);
+            for (int i = 0; i < bulletList.Count; i++){
+                bulletList.ElementAt(i).Draw(viewMatrix, scale);
             }
         }
         public void DrawBricks()
         {
-            foreach (Brick brick in brickList)
+            for (int i = 0; i < brickList.Count; i++)
             {
+                Brick brick= brickList.ElementAt(i);
                 if(brick.health > 0)
                     brick.AddToDraw();
             }
         }
         public void DrawCoins(Matrix viewMatrix, float scale)
         {
-            foreach (Coin coin in coinList)
+            for (int i = 0; i < coinList.Count; i++)
             {
-                coin.Draw(viewMatrix, scale);
+                coinList.ElementAt(i).Draw(viewMatrix, scale);
             }
         }
         public void DrawMedikits(Matrix viewMatrix, float scale)
         {
-            foreach (Medikit medikit in medikitList)
+            for (int i = 0; i < medikitList.Count; i++)
             {
-                medikit.Draw(viewMatrix, scale);
+                medikitList.ElementAt(i).Draw(viewMatrix, scale);
             }
         }
 

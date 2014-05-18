@@ -14,6 +14,8 @@ namespace TankGame
         private AI ai = new AI();
         private bool finished;
         private int playerName;
+        private Stopwatch watch = Stopwatch.StartNew();
+
         public TankGameBrain()
         {
             conn = new NetworkConnection();            
@@ -221,6 +223,9 @@ namespace TankGame
 
         public void process()
         {
+            updateGrid();
+
+           
             String command ="SHOOT#";
             if (conn.gameSAccepted && Game1.tank != null)
                 command = AI.nextCommand(Game1.tank);
@@ -230,11 +235,11 @@ namespace TankGame
                 {
                     if (command != Constant.STOP)
                     {
-                        if (!conn.isNewGMsg())
-                        {
+                        //if (!conn.isNewGMsg())
+                        //{
                             conn.SendData(new DataObject(command, Constant.SERVER_IP, Constant.SERVER_PORT));
-                            Thread.Sleep(1000);
-                        }
+                            //Thread.Sleep(1000);
+                        //}
                     }
                     if (eHandler.giveMovingShootingError() == Constant.S2C_TOOEARLY)
                     {
@@ -250,10 +255,23 @@ namespace TankGame
                     break;///display in gui
                     //throw new GameFinishedException();
                 }
+                while (!conn.isNewGMsg2())
+                {
+                }
+                //watch.Stop();
+                //var elapsedMs = watch.ElapsedMilliseconds;
+                
+                Debug.WriteLine("turn " + conn.turn);
                 command = "SHOOT#";
-                if (conn.gameSAccepted&&Game1.tank!=null)
+                if (conn.gameSAccepted && Game1.tank != null)
+                {
+                    watch = Stopwatch.StartNew();
+                    updateGrid();
                     command = AI.nextCommand(Game1.tank);
-                //Thread.Sleep(1000);
+                    watch.Stop();
+                    Debug.WriteLine("time-elapsed "+watch.ElapsedMilliseconds);
+                }
+                
             }
 
         }

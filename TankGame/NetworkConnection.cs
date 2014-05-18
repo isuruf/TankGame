@@ -28,9 +28,11 @@ namespace TankGame
         public Boolean gameSAccepted = false;
         public Boolean gameIAccepted = false;
         private String SMsg;
+        public int turn = 0;
         private String Imsg;
         private Boolean connection=false;
-        private Boolean newGMsg = false;        
+        private Boolean newGMsg = false;
+        private Boolean newGMsg2 = false;
         #endregion
 
         public NetworkConnection()
@@ -63,7 +65,7 @@ namespace TankGame
 
                         //writing to the port                
                         this.writer.Write(tempStr);
-                        Console.WriteLine("\t Data: " + dataObj.MSG + " is written to " + dataObj.ClientMachine + " on " + dataObj.ClientPort);
+                        //Console.WriteLine("\t Data: " + dataObj.MSG + " is written to " + dataObj.ClientMachine + " on " + dataObj.ClientPort);
                         connection = true;
                         this.writer.Close();
                         this.clientStream.Close();
@@ -131,12 +133,14 @@ namespace TankGame
                         {
                             port = 7000;//Constant.CLIENT_PORT;
                         }*/
-                        Console.WriteLine(ip + ": " + reply.Substring(0, reply.Length - 1));
+                        //Console.WriteLine(ip + ": " + reply.Substring(0, reply.Length - 1));
                         dataObj = new DataObject(reply.Substring(0, reply.Length - 1), ip, port);
                         lastReply = dataObj;
-                        Console.WriteLine(lastReply.MSG+" xyz "+Game1.time);
+                        //Console.WriteLine(lastReply.MSG+" xyz "+Game1.time);
                         if(lastReply.MSG.StartsWith("G:")){
                             newGMsg = true;
+                            newGMsg2 = true;
+                            turn++;
                             lastVariableUpdate = lastReply.MSG;
                         }
                         else if (lastReply.MSG.StartsWith("L:"))
@@ -244,6 +248,18 @@ namespace TankGame
             if (newGMsg)
             {
                 newGMsg = false;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public Boolean isNewGMsg2()
+        {
+            if (newGMsg2)
+            {
+                newGMsg2 = false;
                 return true;
             }
             else
