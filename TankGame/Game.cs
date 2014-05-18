@@ -8,19 +8,19 @@
 #endregion
 
 #region Using Statements
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.GamerServices;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System.Linq;
-using System.Diagnostics;
-using Microsoft.Xna.Framework.GamerServices;
-using Microsoft.Xna.Framework.Media;
-using System.Threading;
 using System.Configuration;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
 #endregion
 
 namespace TankGame
@@ -44,13 +44,15 @@ namespace TankGame
         GraphicsDevice device;
         Effect effect;
         Texture2D sceneryTexture;
+        Texture2D[] skyboxTextures;
+        Model skyboxModel;
         
         public static List<VertexPositionNormalTexture> buildingVerticesList;
         public static List<VertexPositionNormalTexture> verticesList;
         Viewport[] viewports = new Viewport[3];
         float speed = 1.0f;
         public double lastCommandTime = 0;
-        public static float imagesInTexture = 13;
+        public static float imagesInTexture = 11;
 
         public static int[,] floorPlan;
         public static int[,] grid = new int[size,size];
@@ -150,7 +152,7 @@ namespace TankGame
             
             
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
+            skyboxModel = LoadModel("skybox", out skyboxTextures);
             device = graphics.GraphicsDevice;
             
             effect = Content.Load<Effect>("effects");
@@ -300,15 +302,14 @@ namespace TankGame
 
         }
 
-        private Model LoadModel(string assetName)
+        /*private Model LoadModel(string assetName)
         {
 
             Model newModel = Content.Load<Model>(assetName); foreach (ModelMesh mesh in newModel.Meshes)
                 foreach (ModelMeshPart meshPart in mesh.MeshParts)
                     meshPart.Effect = effect.Clone();
             return newModel;
-        }
-
+        }*/
         private Model LoadModel(string assetName, out Texture2D[] textures)
         {
 
@@ -322,7 +323,6 @@ namespace TankGame
             foreach (ModelMesh mesh in newModel.Meshes)
                 foreach (ModelMeshPart meshPart in mesh.MeshParts)
                     meshPart.Effect = effect.Clone();
-
 
             return newModel;
         }
@@ -559,7 +559,7 @@ namespace TankGame
                 DrawMedikits(viewMatrix, 0.005f);
                 DrawBricks();
                 DrawCity();
-               
+                DrawSkybox(tank.tankPosition);
                
                // DrawText(tank);
                 //
@@ -656,6 +656,38 @@ namespace TankGame
             }
         }
 
+        private void DrawSkybox(Vector3 position)
+        {
+            SamplerState ss = new SamplerState();
+            ss.AddressU = TextureAddressMode.Clamp;
+            ss.AddressV = TextureAddressMode.Clamp;
+            device.SamplerStates[0] = ss;
+
+            DepthStencilState dss = new DepthStencilState();
+            dss.DepthBufferEnable = false;
+            device.DepthStencilState = dss;
+
+            Matrix[] skyboxTransforms = new Matrix[skyboxModel.Bones.Count];
+            skyboxModel.CopyAbsoluteBoneTransformsTo(skyboxTransforms);
+            int i = 0;
+            foreach (ModelMesh mesh in skyboxModel.Meshes)
+            {
+                foreach (Effect currentEffect in mesh.Effects)
+                {
+                    Matrix worldMatrix = skyboxTransforms[mesh.ParentBone.Index] * Microsoft.Xna.Framework.Matrix.CreateTranslation(position);
+                    currentEffect.CurrentTechnique = currentEffect.Techniques["Textured"];
+                    currentEffect.Parameters["xWorld"].SetValue(worldMatrix);
+                    currentEffect.Parameters["xView"].SetValue(viewMatrix);
+                    currentEffect.Parameters["xProjection"].SetValue(projectionMatrix);
+                    currentEffect.Parameters["xTexture"].SetValue(skyboxTextures[i++]);
+                }
+                mesh.Draw();
+            }
+
+            dss = new DepthStencilState();
+            dss.DepthBufferEnable = true;
+            device.DepthStencilState = dss;
+        }
         #endregion
 
        
