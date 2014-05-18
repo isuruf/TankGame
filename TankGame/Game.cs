@@ -167,6 +167,7 @@ namespace TankGame
 
             tankBrain.initGrid();
             tankBrain.initTanks();
+            AI.init();
             /*
             tank = new Tank(5,3,0,4);
             for (int i = 0; i < 4; i++)
