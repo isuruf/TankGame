@@ -34,7 +34,7 @@ namespace TankGame
         public static Model tankModel;
         public double lastBulletTime = 0;
         public Vector3 tankPosition;
-        public Quaternion tankRotation = Quaternion.CreateFromAxisAngle(new Vector3(0,1,0),MathHelper.Pi);
+        public Quaternion tankRotation = Quaternion.CreateFromAxisAngle(new Vector3(0, 1, 0), MathHelper.Pi);
         public float health;
         public int direction;
         public int x;
@@ -42,9 +42,12 @@ namespace TankGame
         public int num;
         public int score = 0;
         public int coins = 0;
-        public Queue<Tuple<float, float, float>> moveQueue = new Queue<Tuple<float, float,float>>();
+        public Queue<Tuple<float, float, float>> moveQueue = new Queue<Tuple<float, float, float>>();
         public float dead = 0;
         public BoundingSphere sphere;
+        public Vector3[] cameraPosition = new Vector3[2];
+        public Vector3[] cameraUpDirection = new Vector3[2];
+        Quaternion[] cameraRotation = new Quaternion[2];
 
 
         // Shortcut references to the bones that we are going to animate.
@@ -72,7 +75,7 @@ namespace TankGame
         static Matrix cannonTransform;
         static Matrix hatchTransform;
 
-        
+
         // Array holding all the bone transform matrices for the entire model.
         // We could just allocate this locally inside the Draw method, but it
         // is more efficient to reuse a single array, as this avoids creating
@@ -80,11 +83,11 @@ namespace TankGame
 
 
         // Current animation positions.
-        float wheelRotationValue=0;
-        float steerRotationValue=0;
-        float turretRotationValue=0;
-        float cannonRotationValue=0;
-        float hatchRotationValue=0;
+        float wheelRotationValue = 0;
+        float steerRotationValue = 0;
+        float turretRotationValue = 0;
+        float cannonRotationValue = 0;
+        float hatchRotationValue = 0;
 
 
         #endregion
@@ -144,22 +147,27 @@ namespace TankGame
 
         #endregion
 
-        public Tank(Vector3 position, Quaternion rotation, float health, int direction){
+        public Tank(Vector3 position, Quaternion rotation, float health, int direction)
+        {
             this.tankPosition = position;
             this.tankRotation = rotation;
             this.health = health;
             this.direction = direction;
         }
-        public Tank(int x,int y, int direction, int num)
+        public Tank(int x, int y, int direction, int num)
         {
-            this.tankPosition = new Vector3(Game1.size-x-0.5f,0,-y-0.5f);
+            this.tankPosition = new Vector3(Game1.size - x - 0.5f, 0, -y - 0.5f);
             this.tankRotation *= Quaternion.CreateFromAxisAngle(Vector3.UnitY, direction * MathHelper.PiOver2);
             this.health = 1;
             this.direction = direction;
             this.x = x;
             this.y = y;
             this.num = num;
-            sphere = new BoundingSphere(tankPosition+Vector3.Up*0.5f,0.5f);
+            sphere = new BoundingSphere(tankPosition + Vector3.Up * 0.5f, 0.5f);
+            for (int i = 0; i < 2; i++)
+            {
+                cameraRotation[i] = Quaternion.Identity;
+            }
         }
 
         public void checkCollisions()
@@ -192,8 +200,8 @@ namespace TankGame
             // Look up shortcut references to the bones we are going to animate.
             foreach (ModelBone b in tankModel.Bones)
             {
-                
-                Debug.WriteLine(b.Index+" "+b.Name);
+
+                Debug.WriteLine(b.Index + " " + b.Name);
             }
             leftBackWheelBone = tankModel.Bones[6];
             rightBackWheelBone = tankModel.Bones[2];
@@ -204,7 +212,7 @@ namespace TankGame
             turretBone = tankModel.Bones[9];
             cannonBone = tankModel.Bones[10];
             hatchBone = tankModel.Bones[11];
-            
+
 
             // Store the original transform matrix for each animating bone.
             leftBackWheelTransform = leftBackWheelBone.Transform;
@@ -218,7 +226,7 @@ namespace TankGame
             hatchTransform = hatchBone.Transform;
 
             // Allocate the transform matrix array.
-            
+
         }
 
 
@@ -227,8 +235,8 @@ namespace TankGame
         /// </summary>
         public void Draw(Vector3 camera, Vector3 camup, Matrix view, float scale, float barScale)
         {
-            
-            
+
+
             //Vector3 length = Vector3.Normalize(Vector3.Transform(camera-position, Matrix.CreateFromQuaternion(new Quaternion(camup,MathHelper.PiOver2))));
             Vector3 length = Vector3.Normalize(Vector3.Cross(camera, camup));
             Vector3 v = Vector3.Normalize(Vector3.Cross(length, camup));
@@ -237,7 +245,7 @@ namespace TankGame
             length *= 0.05f * barScale;
             Vector3 height = Vector3.Normalize(camup) * 0.01f * barScale;
             //Debug.WriteLine("positions "+tankPosition+" "+camera);
-            Vector3 position = tankPosition + v * 0.23f * barScale +camup * 0.22f * scale;
+            Vector3 position = tankPosition + v * 0.23f * barScale + camup * 0.22f * scale;
             scale *= 0.0005f;
             float image;
             if (health >= 1)
@@ -248,15 +256,15 @@ namespace TankGame
             float imagesInTexture = Game1.imagesInTexture;
             Game1.verticesList.Add(new VertexPositionNormalTexture(position + length + height, new Vector3(0, 0, 1), new Vector2(image / imagesInTexture, 1)));
             Game1.verticesList.Add(new VertexPositionNormalTexture(position + length - height, new Vector3(0, 0, 1), new Vector2((image) / imagesInTexture, 0)));
-            Game1.verticesList.Add(new VertexPositionNormalTexture(position - length + height, new Vector3(0, 0, 1), new Vector2((image +1) / imagesInTexture, 1)));
+            Game1.verticesList.Add(new VertexPositionNormalTexture(position - length + height, new Vector3(0, 0, 1), new Vector2((image + 1) / imagesInTexture, 1)));
 
             Game1.verticesList.Add(new VertexPositionNormalTexture(position + length - height, new Vector3(0, 0, 1), new Vector2((image) / imagesInTexture, 0)));
             Game1.verticesList.Add(new VertexPositionNormalTexture(position - length - height, new Vector3(0, 0, 1), new Vector2((image + 1) / imagesInTexture, 0)));
             Game1.verticesList.Add(new VertexPositionNormalTexture(position - length + height, new Vector3(0, 0, 1), new Vector2((image + 1) / imagesInTexture, 1)));
-       
+
             Matrix projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1, 0.2f, 10000.0f);
             Matrix world = Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(tankRotation) * Matrix.CreateTranslation(tankPosition);
-            
+
             // Set the world matrix as the root transform of the model.
             tankModel.Root.Transform = Matrix.CreateScale(scale, scale, scale) * world;
 
@@ -287,7 +295,7 @@ namespace TankGame
             {
                 foreach (ModelMeshPart part in mesh.MeshParts)
                 {
-                    
+
                     Effect effect = part.Effect;
                     //float time = 0; Game1.time / 4;
                     effect.Parameters["TranslationAmount"].SetValue(50 * dead);
@@ -301,7 +309,7 @@ namespace TankGame
                     effect.Parameters["ambientColor"].SetValue(Color.DarkGray.ToVector4());
                     effect.Parameters["diffuseColor"].SetValue(Color.White.ToVector4());
                     effect.Parameters["specularColor"].SetValue(Color.White.ToVector4());
-                    effect.Parameters["specularPower"].SetValue(50); 
+                    effect.Parameters["specularPower"].SetValue(50);
                     /*
                     effect.World = boneTransforms[mesh.ParentBone.Index];
                     effect.View = view;
@@ -313,17 +321,17 @@ namespace TankGame
                 mesh.Draw();
             }
         }
-        
+
         public void update()
         {
             //if (health<= 0 && dead < 0.1f) dead+=0.01f;
             if (moveQueue.Count != 0)
             {
-                Tuple<float, float,float> tuple = moveQueue.Dequeue();
+                Tuple<float, float, float> tuple = moveQueue.Dequeue();
                 float turningSpeed = MathHelper.ToRadians(1.5f);
                 float turn = tuple.Item1;
 
-                WheelRotation += Math.Abs(tuple.Item3)+Math.Abs(tuple.Item2)* 2;
+                WheelRotation += Math.Abs(tuple.Item3) + Math.Abs(tuple.Item2) * 2;
 
                 if (turn == 0)
                 {
@@ -335,7 +343,7 @@ namespace TankGame
                 else
                 {
                     tankRotation *= Quaternion.CreateFromAxisAngle(new Vector3(0, 1, 0), -turn);
-                    SteerRotation -= turn*2;
+                    SteerRotation -= turn * 2;
                 }
 
                 if (SteerRotation > 0.5f)
@@ -344,13 +352,13 @@ namespace TankGame
                     SteerRotation = -0.5f;
                 //TurretRotation = SteerRotation;
 
-                tankPosition +=  new Vector3(-tuple.Item2,0,-tuple.Item3);
+                tankPosition += new Vector3(-tuple.Item2, 0, -tuple.Item3);
                 sphere.Center = tankPosition + Vector3.Up * 0.5f;
             }
         }
         public void updatePosition(int x, int y, int direction, int shot, int score, int coins, float health)
         {
-            float move= Math.Abs(this.x - x) + Math.Abs(this.y - y);
+            float move = Math.Abs(this.x - x) + Math.Abs(this.y - y);
             if ((move != 1 || this.direction != direction) && move != 0)
             {
                 Debug.WriteLine("Error1");
@@ -358,7 +366,7 @@ namespace TankGame
             if (move != 0)
             {
                 for (int i = 0; i < 60; i++)
-                    moveQueue.Enqueue(new Tuple<float, float,float>(0,(x-this.x)/60f,(y-this.y)/60f));
+                    moveQueue.Enqueue(new Tuple<float, float, float>(0, (x - this.x) / 60f, (y - this.y) / 60f));
 
             }
             if (this.direction != direction)
@@ -367,7 +375,7 @@ namespace TankGame
                 if (angle == 3)
                     angle = -1;
                 for (int i = 0; i < 60; i++)
-                    moveQueue.Enqueue(new Tuple<float, float, float>(angle*(float)MathHelper.PiOver2/60f, 0, 0));
+                    moveQueue.Enqueue(new Tuple<float, float, float>(angle * (float)MathHelper.PiOver2 / 60f, 0, 0));
             }
             this.x = x;
             this.y = y;
@@ -383,6 +391,26 @@ namespace TankGame
             }
 
 
+        }
+        public void UpdateCameras()
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                cameraRotation[i] = Quaternion.Lerp(cameraRotation[i], tankRotation, 0.1f);
+
+                Vector3 campos;
+                if (i == 0)
+                    campos = new Vector3(0, 0.2f, -0.9f);
+                else
+                    campos = new Vector3(0, 0.2f, 0.9f);
+                campos = Vector3.Transform(campos, Matrix.CreateFromQuaternion(cameraRotation[i]));
+                campos += tankPosition;
+
+                Vector3 camup = new Vector3(0, 1.0f, 0);
+                camup = Vector3.Transform(camup, Matrix.CreateFromQuaternion(cameraRotation[i]));
+                cameraPosition[i] = campos;
+                cameraUpDirection[i] = camup;
+            }
         }
     }
 }
