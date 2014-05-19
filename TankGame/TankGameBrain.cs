@@ -10,7 +10,7 @@ namespace TankGame
 
         private NetworkConnection conn;
         private Thread reciveThread;
-        private ErrorHandler eHandler;
+       // private ErrorHandler eHandler;
         private AI ai = new AI();
         private bool finished;
         private int playerName;
@@ -21,7 +21,7 @@ namespace TankGame
             conn = new NetworkConnection();
             reciveThread = new Thread(new ThreadStart(conn.receiveData));
             reciveThread.Priority = ThreadPriority.Highest;
-            eHandler = new ErrorHandler(conn);
+           // eHandler = new ErrorHandler(conn);
             finished = false;
         }
         public void startGame()
@@ -36,9 +36,9 @@ namespace TankGame
             while (!conn.gameIAccepted)
             {
                 Thread.Sleep(200);
-                if (eHandler.giveJoinError() != null)
+                //if (eHandler.giveJoinError() != null)
                 {
-                    return; ///a code to gui to display join error
+                    //return; ///a code to gui to display join error
                 }
             }
         }
@@ -133,6 +133,7 @@ namespace TankGame
         public void updateGrid()
         {
             String Gmessage = conn.returnLastGmsg();
+            
             Gmessage = Gmessage.Substring(2, Gmessage.Length - 3);
             String[] GMsg = Gmessage.Split(':');
             //String msgType = IMsg[0];
@@ -222,15 +223,15 @@ namespace TankGame
 
         public void process()
         {
-            updateGrid();
+            //updateGrid();
 
 
             String command = "SHOOT#";
             if (conn.gameSAccepted && Game1.tank != null)
                 command = AI.nextCommand(Game1.tank);
-            while (!eHandler.isGameFinished())
+            while (true)
             {
-                if (!eHandler.isMyPlayerDead())
+                if (true)
                 {
                     if (command != Constant.STOP)
                     {
@@ -240,20 +241,15 @@ namespace TankGame
                         //Thread.Sleep(1000);
                         //}
                     }
-                    if (eHandler.giveMovingShootingError() == Constant.S2C_TOOEARLY)
+                    /*if (eHandler.giveMovingShootingError() == Constant.S2C_TOOEARLY)
                     {
                         Random sleepTime = new Random();
                         Thread.Sleep(sleepTime.Next(1, 25));
                         Console.WriteLine("Wait random time to resend=====================================================");
                         continue;
-                    }
+                    }*/
                 }
-                if (eHandler.isGameFinished())
-                {
-                    finished = true;
-                    break;///display in gui
-                    //throw new GameFinishedException();
-                }
+                
                 while (!conn.isNewGMsg())
                 {
                 }
