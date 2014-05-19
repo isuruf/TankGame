@@ -84,15 +84,20 @@ namespace TankGame
             queue.Enqueue(new Tuple<coord, int>(cur, tank.direction));
             coord next;
             next = coArr[tank.x, tank.y];
-            for (int i = 0; i < Game1.bulletList.Count;i++)
-            {
-                Bullet bullet = Game1.bulletList.ElementAt(i);
-                float time = collisionTime(bullet, next);
-                if (time < 10)
+            if(collisionTime(next)==1000){
+                next= next.getNext(tank.direction);
+
+                if (next!=null&&collisionTime(next) != 1000&&!gridOccupied[next.x,next.y])
+                {
+                    Debug.WriteLine("Avoiding bullet");
+                    return message[tank.direction];
+                }
+                else
                 {
 
                 }
             }
+            next = coArr[tank.x, tank.y];
             if(tank.health>0.5&&Game1.medikitList.Count>0){
                 for (int i = 0; i < 20; i++)
                 {
@@ -281,6 +286,17 @@ namespace TankGame
                 }
             return -1;
         }
+        public static float collisionTime(coord tank)
+        {
+            float time =1000;
+            for (int i = 0; i < Game1.bulletList.Count; i++)
+            {
+                float temp = collisionTime(Game1.bulletList.ElementAt(i),tank);
+                if (temp < time)
+                    time=temp;
+            }
+            return time;
+        }
         public static float collisionTime(Bullet bullet, coord tank)
         {
             int direction = bullet.direction;
@@ -290,7 +306,7 @@ namespace TankGame
                 {
                     for (int y = (int)Math.Ceiling(bullet.y); y < tank.y; y++)
                     {
-                        if (gridOccupied[tank.x, y])
+                        if (y >= 0 && y < Game1.size && gridOccupied[tank.x, y])
                             return 1000;
                     }
                     return tank.y - bullet.y;
@@ -302,7 +318,7 @@ namespace TankGame
                 {
                     for (int x = (int)Math.Ceiling(bullet.x); x < tank.x; x++)
                     {
-                        if (gridOccupied[x, tank.y])
+                        if (x >= 0 && x < Game1.size && gridOccupied[x, tank.y])
                             return 1000;
                     }
                     return tank.y - bullet.y;
@@ -314,7 +330,7 @@ namespace TankGame
                 {
                     for (int y = (int)Math.Floor(bullet.y); y > tank.y; y--)
                     {
-                        if (gridOccupied[tank.x, y])
+                        if (y>=0&&y<Game1.size&&gridOccupied[tank.x, y])
                             return 1000;
                     }
                     return tank.y - bullet.y;
@@ -326,7 +342,7 @@ namespace TankGame
                 {
                     for (int x = (int)Math.Floor(bullet.x); x > tank.x; x--)
                     {
-                        if (gridOccupied[x, tank.y])
+                        if (x >= 0 && x < Game1.size && gridOccupied[x, tank.y])
                             return 1000;
                     }
                     return tank.y - bullet.y;
@@ -347,6 +363,7 @@ namespace TankGame
             this.y = y;
         }
         public void reset()
+
         {
             for (int i = 0; i < 4; i++)
             {

@@ -343,10 +343,11 @@ namespace TankGame
             ProcessKeyboard(gameTime);
             for (int i = 0; i < 5; i++)
             {
-                if (tankArr[i] != null&&tankArr[i].health>0)
+                if (tankArr[i] != null)
                 {
                     tankArr[i].update();
-                    tankArr[i].checkCollisions();
+                    if(tankArr[i].health>0)
+                        tankArr[i].checkCollisions();
                 }
             }
             tankBrain.placeCoins();
@@ -580,8 +581,7 @@ namespace TankGame
             DrawMedikits(viewMatrix, 0.015f);
             DrawBricks();
             DrawCity();
-            DrawText(tank);
-            
+            //DrawText(tank);
             base.Draw(gameTime);
         }
 
@@ -598,9 +598,9 @@ namespace TankGame
 
         private void DrawCity()
         {
-            verticesList.AddRange(buildingVerticesList);
-            VertexBuffer cityVertexBuffer= new VertexBuffer(device, VertexPositionNormalTexture.VertexDeclaration, verticesList.Count, BufferUsage.WriteOnly);
-            cityVertexBuffer.SetData<VertexPositionNormalTexture>(verticesList.ToArray());
+            //verticesList.AddRange(buildingVerticesList);
+            VertexBuffer cityVertexBuffer = new VertexBuffer(device, VertexPositionNormalTexture.VertexDeclaration, buildingVerticesList.Count, BufferUsage.WriteOnly);
+            cityVertexBuffer.SetData<VertexPositionNormalTexture>(buildingVerticesList.ToArray());
             effect.CurrentTechnique = effect.Techniques["Textured"];
             effect.Parameters["xWorld"].SetValue(Matrix.Identity);
             effect.Parameters["xView"].SetValue(viewMatrix);
@@ -613,11 +613,15 @@ namespace TankGame
 
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
+               
                 pass.Apply();
-                device.SetVertexBuffer(cityVertexBuffer);
-                device.DrawPrimitives(PrimitiveType.TriangleList, 0, cityVertexBuffer.VertexCount / 3);
+                //device.SetVertexBuffer(cityVertexBuffer);
+                //device.DrawPrimitives(PrimitiveType.TriangleList, 0, cityVertexBuffer.VertexCount / 3);
+                
+                device.DrawUserPrimitives(PrimitiveType.TriangleList, verticesList.ToArray(), 0, verticesList.Count / 3, VertexPositionNormalTexture.VertexDeclaration);
             }
         }
+
 
         public void DrawTanks(Vector3 camera, Vector3 camup, Matrix view, float scale, float barScale)
         {
