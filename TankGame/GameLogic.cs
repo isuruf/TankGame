@@ -11,7 +11,6 @@ namespace TankGame
 
         private NetworkConnection conn;
         private Thread reciveThread;
-       // private ErrorHandler eHandler;
         private AI ai = new AI();
         private bool finished;
         private int playerName;
@@ -162,7 +161,7 @@ namespace TankGame
                 String[] status = brickHealth[i].Split(',');
                 int x = int.Parse(status[0]);
                 int y = int.Parse(status[1]);
-                float health = (int.Parse(status[2])) / 4f;
+                float health = (4-int.Parse(status[2])) / 4f;
                 if (Game1.brickArray[x, y] != null)
                 {
                     Game1.brickArray[x, y].update(health);
@@ -232,20 +231,11 @@ namespace TankGame
                 command = AI.nextCommand(Game1.tank);
             while (true)
             {
-                if (true)
-                {
-                    if (command != Constant.STOP)
-                    {
-                        conn.sendData(new DataObject(command, Constant.SERVER_IP, Constant.SERVER_PORT));
-                    }
-                }
-                
+                conn.sendData(new DataObject(command, Constant.SERVER_IP, Constant.SERVER_PORT));
+    
                 while (!conn.isNewGMsg())
                 {
                 }
-                //watch.Stop();
-                //var elapsedMs = watch.ElapsedMilliseconds;
-
                 Debug.WriteLine("turn " + conn.turn);
                 command = "SHOOT#";
                 if (conn.gameSAccepted && Game1.tank != null)
@@ -254,7 +244,7 @@ namespace TankGame
                     updateGrid();
                     command = AI.nextCommand(Game1.tank);
                     watch.Stop();
-                    Debug.WriteLine("time-elapsed " + watch.ElapsedMilliseconds);
+                    Debug.WriteLine("time-elapsed " + watch.ElapsedMilliseconds+" command:"+command);
                 }
 
             }

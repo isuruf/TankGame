@@ -98,7 +98,7 @@ namespace TankGame
                 }
             }
             next = coArr[tank.x, tank.y];
-            if(tank.health>0.5&&Game1.medikitList.Count>0){
+            if(tank.health>0.5||Game1.medikitList.Count==0){
                 for (int i = 0; i < 20; i++)
                 {
                     next = next.getNext(tank.direction);
@@ -251,13 +251,13 @@ namespace TankGame
             }
            
             
-            int dist = Math.Abs(tank.x - 2*size / 4) + Math.Abs(tank.y - size / 2);
+            int dist = Math.Abs(tank.x - size / 4) + Math.Abs(tank.y - size / 2);
             for (int i = 0; i < 4; i++)
             {
                 next = coArr[tank.x, tank.y].getNext(i);
                 if (next == null)
                     continue;
-                int dist2=Math.Abs(next.x - 2*size /4 ) + Math.Abs(next.y - size / 2);
+                int dist2=Math.Abs(next.x - size /4 ) + Math.Abs(next.y - size / 2);
                 if (!gridOccupied[next.x, next.y]&&dist2<dist)
                 {
                     Debug.WriteLine("Going to middle");

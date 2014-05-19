@@ -138,13 +138,13 @@ namespace TankGame
         {
             tankBrain = new GameLogic();
             
-            processThread = new Thread(new ThreadStart(tankBrain.process));
+        /*    processThread = new Thread(new ThreadStart(tankBrain.process));
             processThread.Priority = ThreadPriority.Normal;
             tankBrain.startGame();
             tankBrain.waitGameStarted();
             processThread.Start();
             
-            
+          */  
             spriteBatch = new SpriteBatch(GraphicsDevice);
             //skyboxModel = LoadModel("skybox", out skyboxTextures);
             device = graphics.GraphicsDevice;
@@ -157,16 +157,19 @@ namespace TankGame
             Bullet.bulletModel = Content.Load<Model>("bullet");
             Tank.Initialize();
 
-            tankBrain.initGrid();
-            tankBrain.initTanks();
+        //    tankBrain.initGrid();
+        //    tankBrain.initTanks();
             AI.init();
-            /*
+            
             tank = new Tank(5,3,0,4);
             for (int i = 0; i < 4; i++)
             {
                 tankArr[i] = new Tank(i,i,i,i);
             }
-            tankArr[4]=tank;*/
+            tankArr[4]=tank;
+            brickList.Add(new Brick(10, 5));
+            for (int i = 0; i < 5; i++)
+                tankArr[i].health = 1 / (i + 1f);
             Coin.coinModel = Content.Load<Model>("TyveKrone");
             Medikit.medikitModel = Content.Load<Model>("medikit");
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, device.Viewport.AspectRatio, 0.05f, 10000.0f);
@@ -190,17 +193,19 @@ namespace TankGame
             {
                 for (int z = -2; z < cityLength+2; z++)
                 {
-                    
+                                
                     int currentbuilding ;
                     if(x<0||x>=cityWidth||z<0||z>=cityLength)
                         currentbuilding=1;
                     else
                         currentbuilding= grid[x, z];
-                    int currentheight = 1;
-                    if (currentbuilding == 0 || currentbuilding == 4)
+                    float currentheight = 1;
+                    if (currentbuilding == 0 || currentbuilding == 4 || currentbuilding == 3)
                     {
                         currentheight = 0;
                     }
+                    else if (currentbuilding == 2)
+                        currentheight = 0.5f;
                     int x1 = offset - x;
                     //floor or ceiling
                     buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, currentheight, -z), new Vector3(0, 1, 0), new Vector2(currentbuilding * 2 / imagesInTexture, 1)));
@@ -437,7 +442,7 @@ namespace TankGame
                     moveQueue.Enqueue(new Tuple<float, float>(leftRightRot, upDownRot));
                 lastCommandTime = currentTime;
             }
-            else if(tank.moveQueue.Count==0)
+            else if(moveQueue.Count==0)
                 moveQueue.Enqueue(new Tuple<float,float>(leftRightRot,upDownRot));
 
             Move();
@@ -492,46 +497,7 @@ namespace TankGame
                 Vector3 addVector = Vector3.Transform(new Vector3(0, 0, -1), tank.tankRotation);
                 tank.tankPosition += addVector * upDownRot;
             }
-        }/*
-        public void updatePosition(int x, int y, int direction,int shot, int score, int coins, float health)
-        {
-            float leftRightRot = 0;
-            float upDownRot = 0;
-            upDownRot-=Math.Abs(this.x-x)+Math.Abs(this.y-y);
-            if (upDownRot != 1&&upDownRot!=0)
-            {
-                Debug.WriteLine("Error");
-            }
-            if(upDownRot!=0){
-                for (int i = 0; i < 60; i++)
-                    moveQueue.Enqueue(new Tuple<float, float>(0, upDownRot));
-            }
-            else if(this.direction!=direction){
-                if(Math.Abs(this.direction-direction)==2)
-                    leftRightRot -= 2;
-                else
-                    leftRightRot -=2-((direction-this.direction)%4); 
-                 for (int i = 0; i < 60; i++)
-                    moveQueue.Enqueue(new Tuple<float, float>(leftRightRot, 0));
-            }
-            this.x = x;
-            this.y = y;
-            this.direction = direction;
-            this.score = score;
-            this.coins = coins;
-            this.health = health;
-            if (shot == 1)
-            {
-                Bullet newBullet = new Bullet(tankPosition + Vector3.Transform(new Vector3(0, 0.17f, -0.05f),
-                    tankRotation), tankRotation, 1.5f / 60.0f);
-                Game1.bulletList.Add(newBullet);
-            }
-
-            
         }
-        
-
-        */
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -539,12 +505,9 @@ namespace TankGame
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice device = graphics.GraphicsDevice;
-
             device.Clear(Color.DarkGray);
             
-            
 
-            // Calculate the camera matrices.
             float time = (float)gameTime.TotalGameTime.TotalSeconds;
             Matrix worldMatrix;
             for (int i = 1; i >=0; i--)
@@ -558,8 +521,9 @@ namespace TankGame
                 DrawBullets(viewMatrix, 0.008f);
                 DrawCoins(viewMatrix, 0.05f);
                 DrawMedikits(viewMatrix, 0.005f);
-                DrawBricks();
+                DrawBricks(tank.tankPosition - tank.cameraPosition[i], tank.cameraUpDirection[i],3);
                 DrawCity();
+                DrawText(tank);
             //    DrawSkybox(tank.tankPosition);
                
                
@@ -579,14 +543,15 @@ namespace TankGame
             DrawBullets(viewMatrix, 0.05f);
             DrawCoins(viewMatrix, 0.3f);
             DrawMedikits(viewMatrix, 0.015f);
-            DrawBricks();
+            DrawBricks(newTarget - newCampos, newCamup, 7);
             DrawCity();
-            //DrawText(tank);
+            DrawText(tank);
             base.Draw(gameTime);
         }
 
         private void DrawText(Tank tank)
         {
+            GraphicsDevice.BlendState = BlendState.AlphaBlend; 
             spriteBatch.Begin();
             int score = tank.score;
             int coins = tank.coins;
@@ -594,13 +559,16 @@ namespace TankGame
             spriteBatch.DrawString(font, "Score: " + score, new Vector2(20, 20), Color.Red);
             spriteBatch.DrawString(font, "Coins: " + coins, new Vector2(20, 45), Color.Red);
             spriteBatch.End();
+            GraphicsDevice.BlendState = BlendState.Opaque;
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap; 
         }
 
         private void DrawCity()
         {
-            //verticesList.AddRange(buildingVerticesList);
-            VertexBuffer cityVertexBuffer = new VertexBuffer(device, VertexPositionNormalTexture.VertexDeclaration, buildingVerticesList.Count, BufferUsage.WriteOnly);
-            cityVertexBuffer.SetData<VertexPositionNormalTexture>(buildingVerticesList.ToArray());
+            verticesList.AddRange(buildingVerticesList);
+            VertexBuffer cityVertexBuffer = new VertexBuffer(device, VertexPositionNormalTexture.VertexDeclaration, verticesList.Count, BufferUsage.None);
+            cityVertexBuffer.SetData<VertexPositionNormalTexture>(verticesList.ToArray());
             effect.CurrentTechnique = effect.Techniques["Textured"];
             effect.Parameters["xWorld"].SetValue(Matrix.Identity);
             effect.Parameters["xView"].SetValue(viewMatrix);
@@ -609,16 +577,16 @@ namespace TankGame
             effect.Parameters["xEnableLighting"].SetValue(true);
             effect.Parameters["xLightDirection"].SetValue(lightDirection);
             effect.Parameters["xAmbient"].SetValue(0.8f);
-            device.BlendState=BlendState.NonPremultiplied;
+            //device.BlendState=BlendState.NonPremultiplied;
 
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
                
                 pass.Apply();
-                //device.SetVertexBuffer(cityVertexBuffer);
-                //device.DrawPrimitives(PrimitiveType.TriangleList, 0, cityVertexBuffer.VertexCount / 3);
+                device.SetVertexBuffer(cityVertexBuffer);
+                device.DrawPrimitives(PrimitiveType.TriangleList, 0, cityVertexBuffer.VertexCount / 3);
                 
-                device.DrawUserPrimitives(PrimitiveType.TriangleList, verticesList.ToArray(), 0, verticesList.Count / 3, VertexPositionNormalTexture.VertexDeclaration);
+                //device.DrawUserPrimitives(PrimitiveType.TriangleList, verticesList.ToArray(), 0, verticesList.Count / 3,VertexPositionNormalTexture.VertexDeclaration);
             }
         }
 
@@ -638,14 +606,13 @@ namespace TankGame
                 bulletList.ElementAt(i).Draw(viewMatrix, scale);
             }
         }
-
-        public void DrawBricks()
+        public void DrawBricks(Vector3 camera, Vector3 camup, float barScale)
         {
             for (int i = 0; i < brickList.Count; i++)
             {
                 Brick brick= brickList.ElementAt(i);
-                if(brick.health > 0)
-                    brick.AddToDraw();
+                if (brick.health > 0)
+                    brick.AddToDraw(camera,camup,barScale);
             }
         }
 

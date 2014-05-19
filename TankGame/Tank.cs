@@ -240,32 +240,28 @@ namespace TankGame
             if (!draw)
                 return;
 
-            //Vector3 length = Vector3.Normalize(Vector3.Transform(camera-position, Matrix.CreateFromQuaternion(new Quaternion(camup,MathHelper.PiOver2))));
             Vector3 length = Vector3.Normalize(Vector3.Cross(camera, camup));
             Vector3 v = Vector3.Normalize(Vector3.Cross(length, camup));
-            //Debug.WriteLine(length2+" and "+length);
-            //length = length2;
             length *= 0.05f * barScale;
             Vector3 height = Vector3.Normalize(camup) * 0.01f * barScale;
-            //Debug.WriteLine("positions "+tankPosition+" "+camera);
             Vector3 position = tankPosition + v * 0.23f * barScale + camup * 0.22f * scale;
             scale *= 0.0005f;
             float image;
             if (health >= 1)
-                image = 11;
+                image = 10;
             else
-                image = 10 + health;
-            image = 10.5f;
+                image = 9 + health;
+
             float imagesInTexture = Game1.imagesInTexture+0f;
-            Console.WriteLine("tank: " + num + "Img: " + image + "frac: " + image / imagesInTexture);
+
             Game1.verticesList.Add(new VertexPositionNormalTexture(position + length + height, new Vector3(0, 0, 1), new Vector2(image / imagesInTexture, 1)));
             Game1.verticesList.Add(new VertexPositionNormalTexture(position + length - height, new Vector3(0, 0, 1), new Vector2((image) / imagesInTexture, 0)));
             Game1.verticesList.Add(new VertexPositionNormalTexture(position - length + height, new Vector3(0, 0, 1), new Vector2((image + 1f) / imagesInTexture, 1)));
-
+            
             Game1.verticesList.Add(new VertexPositionNormalTexture(position + length - height, new Vector3(0, 0, 1), new Vector2((image) / imagesInTexture, 0)));
             Game1.verticesList.Add(new VertexPositionNormalTexture(position - length - height, new Vector3(0, 0, 1), new Vector2((image + 1f) / imagesInTexture, 0)));
             Game1.verticesList.Add(new VertexPositionNormalTexture(position - length + height, new Vector3(0, 0, 1), new Vector2((image + 1f) / imagesInTexture, 1)));
-
+            
             Matrix projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1, 0.2f, 10000.0f);
             Matrix world = Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(tankRotation) * Matrix.CreateTranslation(tankPosition);
 
@@ -390,7 +386,7 @@ namespace TankGame
             this.coins = coins;
             if (health == 0&&!deadcoin)
             {
-                Game1.coinList.Add(new Coin(this.x, this.y, this.coins / 2, 5000));
+                Game1.coinList.Add(new Coin(this.x, this.y, this.coins / 2, 1000000));
                 deadcoin = true;
                 
             }
