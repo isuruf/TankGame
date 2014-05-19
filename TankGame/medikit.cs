@@ -26,6 +26,7 @@ namespace TankGame
             this.speed = speed;
             sphere = new BoundingSphere(position, 0.5f);
         }
+
         public Medikit(int x, int y, float liveTime)
         {
             this.position = new Vector3(Game1.size - x - 0.5f, 0.2f, -y - 0.5f);
@@ -45,6 +46,7 @@ namespace TankGame
             if (remainingTime <= 0)
                 Game1.medikitList.Remove(this);
             angle += speed;
+            //Console.WriteLine("x: "+x+" y: "+y+ " ded: " + deadTime + " liv: " + liveTime + " rem: " + remainingTime+" curr: "+currentTime);
         }
 
         public void Draw(Matrix view, float scale)

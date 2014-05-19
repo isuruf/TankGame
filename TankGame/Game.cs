@@ -73,7 +73,7 @@ namespace TankGame
         public static List<BoundingSphere> stoneList = new List<BoundingSphere>();
         public static Brick[,] brickArray = new Brick[20, 20];
 
-        TankGameBrain tankBrain;
+        GameLogic tankBrain;
         private Thread processThread;
         public static String command = "DOWN#";
         public Queue<Tuple<float, float>> moveQueue = new Queue<Tuple<float, float>>();
@@ -136,7 +136,7 @@ namespace TankGame
         /// </summary>
         protected override void LoadContent()
         {
-            tankBrain = new TankGameBrain();
+            tankBrain = new GameLogic();
             
             processThread = new Thread(new ThreadStart(tankBrain.process));
             processThread.Priority = ThreadPriority.Normal;

@@ -2,10 +2,11 @@
 using System.Threading;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 
 namespace TankGame
 {
-    class TankGameBrain
+    class GameLogic
     {
 
         private NetworkConnection conn;
@@ -16,7 +17,7 @@ namespace TankGame
         private int playerName;
         private Stopwatch watch = Stopwatch.StartNew();
 
-        public TankGameBrain()
+        public GameLogic()
         {
             conn = new NetworkConnection();
             reciveThread = new Thread(new ThreadStart(conn.receiveData));
@@ -61,7 +62,7 @@ namespace TankGame
         public void initGrid()
         {
             while (!conn.gameIAccepted) { };
-            String Imessage = conn.returnIMsg();
+            String Imessage = conn.getIMsg();
             Imessage = Imessage.Substring(0, Imessage.Length - 1);
             String[] IMsg = Imessage.Split(':');
             //String msgType = IMsg[0];
@@ -103,9 +104,9 @@ namespace TankGame
         {
 
             while (!conn.gameSAccepted) { };
-            String Smessage = conn.returnSMsg();
+            String Smessage = conn.getSMsg();
             Debug.WriteLine("Smessage " + Smessage);
-            Debug.WriteLine("Imessage " + conn.returnIMsg());
+            Debug.WriteLine("Imessage " + conn.getIMsg());
             Debug.WriteLine(Smessage.Length - 1);
             Smessage = Smessage.Substring(2, Smessage.Length - 3);
             String[] SMsg = Smessage.Split(':');
@@ -132,7 +133,7 @@ namespace TankGame
 
         public void updateGrid()
         {
-            String Gmessage = conn.returnLastGmsg();
+            String Gmessage = conn.getLastGmsg();
             
             Gmessage = Gmessage.Substring(2, Gmessage.Length - 3);
             String[] GMsg = Gmessage.Split(':');
@@ -178,7 +179,7 @@ namespace TankGame
 
         public void placeCoins()
         {
-            String Cmessage = conn.returnLastCoin();
+            String Cmessage = conn.getLastCoin();
             if (Cmessage != null)
             {
                 Cmessage = Cmessage.Substring(2, Cmessage.Length - 3);
@@ -192,10 +193,6 @@ namespace TankGame
                     int y = int.Parse(coordinates[1]);
                     float liveTime = float.Parse(CMsg[1]);
                     int value = int.Parse(CMsg[2]);
-                    //Game1.coinList.Add(new Coin(new Vector3(x+5.5f, .2f, y-3.5f), MathHelper.ToRadians(6f)));
-
-                    //Console.WriteLine("x coo = " + x);
-                    //Console.WriteLine("y coo = " + y);
                     Game1.coinList.Add(new Coin(x, y, value, liveTime));
                 }
             }
@@ -203,20 +200,24 @@ namespace TankGame
 
         public void placeMedikits()
         {
-            String Lmessage = conn.returnLastMedikit();
-            if (Lmessage != null)
+            Queue<String> queue = conn.getMedikitQueue();
+            while (queue.Count != 0)
             {
-                Lmessage = Lmessage.Substring(2, Lmessage.Length - 3);
-                String[] LMsg = Lmessage.Split(':');
-
-                for (int i = 0; i < LMsg.Length; ++i)
+                String Lmessage = queue.Dequeue();
+                if (Lmessage != null)
                 {
-                    String[] coordinates = LMsg[0].Split(',');
+                    Lmessage = Lmessage.Substring(2, Lmessage.Length - 3);
+                    String[] LMsg = Lmessage.Split(':');
 
-                    int x = int.Parse(coordinates[0]);
-                    int y = int.Parse(coordinates[1]);
-                    float liveTime = float.Parse(LMsg[1]);
-                    Game1.medikitList.Add(new Medikit(x, y, liveTime));
+                    for (int i = 0; i < LMsg.Length; ++i)
+                    {
+                        String[] coordinates = LMsg[0].Split(',');
+
+                        int x = int.Parse(coordinates[0]);
+                        int y = int.Parse(coordinates[1]);
+                        float liveTime = float.Parse(LMsg[1]);
+                        Game1.medikitList.Add(new Medikit(x, y, liveTime));
+                    }
                 }
             }
         }
@@ -235,19 +236,8 @@ namespace TankGame
                 {
                     if (command != Constant.STOP)
                     {
-                        //if (!conn.isNewGMsg())
-                        //{
                         conn.sendData(new DataObject(command, Constant.SERVER_IP, Constant.SERVER_PORT));
-                        //Thread.Sleep(1000);
-                        //}
                     }
-                    /*if (eHandler.giveMovingShootingError() == Constant.S2C_TOOEARLY)
-                    {
-                        Random sleepTime = new Random();
-                        Thread.Sleep(sleepTime.Next(1, 25));
-                        Console.WriteLine("Wait random time to resend=====================================================");
-                        continue;
-                    }*/
                 }
                 
                 while (!conn.isNewGMsg())

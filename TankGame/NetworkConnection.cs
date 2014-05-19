@@ -22,7 +22,7 @@ namespace TankGame
         private DataObject lastReply = null;
         private String lastError;
         private String lastVariableUpdate;
-        private List<String> lastLifePack;
+        private Queue<String> lastLifePack;
         private List<String> lastCoin;
         public Boolean gameSAccepted = false;
         public Boolean gameIAccepted = false;
@@ -37,7 +37,7 @@ namespace TankGame
         public NetworkConnection()
         {
             lastCoin = new List<string>();
-            lastLifePack = new List<string>();
+            lastLifePack = new Queue<string>();
         }
 
         public void sendData(object stateInfo)   //used when sendind data
@@ -121,7 +121,7 @@ namespace TankGame
                         }
                         else if (lastReply.MSG.StartsWith("L:"))
                         {
-                            lastLifePack.Add(lastReply.MSG);
+                            lastLifePack.Enqueue(lastReply.MSG);
                         }
                         else if (lastReply.MSG.StartsWith("C:"))
                         {
@@ -166,7 +166,7 @@ namespace TankGame
             }
         }
 
-        public String returnSMsg()
+        public String getSMsg()
         {
             String s = null;
             if (SMsg != null)
@@ -175,7 +175,7 @@ namespace TankGame
             return s;
         }
 
-        public String returnLastCoin()
+        public String getLastCoin()
         {
             if (lastCoin.Count != 0)
             {
@@ -187,21 +187,12 @@ namespace TankGame
                 return null;
         }
 
-        public String returnLastMedikit()
+        public Queue<String> getMedikitQueue()
         {
-            if (lastLifePack.Count != 0)
-            {
-                String s = lastLifePack[0];
-                lastLifePack.RemoveAt(0);
-                return s;
-            }
-            else
-            {
-                return null;
-            }
+            return lastLifePack;
         }
 
-        public String returnLastGmsg()
+        public String getLastGmsg()
         {
             newGMsg = false;
             return lastVariableUpdate;
@@ -220,7 +211,7 @@ namespace TankGame
             }
         }
 
-        public String returnIMsg()
+        public String getIMsg()
         {
             return Imsg;
         }
