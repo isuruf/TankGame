@@ -558,10 +558,10 @@ namespace TankGame
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
             spriteBatch.Begin();
             spriteBatch.Draw(backgroundTexture, new Rectangle(0, 0,400,500), Color.White);
-            spriteBatch.DrawString(font, "Player", new Vector2(30, 20), Color.Red);
-            spriteBatch.DrawString(font, "Points", new Vector2(100, 20), Color.Red);
-            spriteBatch.DrawString(font, "Coins", new Vector2(200, 20), Color.Red);
-            spriteBatch.DrawString(font, "Health", new Vector2(310, 20), Color.Red);
+            spriteBatch.DrawString(font, "Player", new Vector2(30, 20), Color.Black);
+            spriteBatch.DrawString(font, "Points", new Vector2(100, 20), Color.Black);
+            spriteBatch.DrawString(font, "Coins", new Vector2(200, 20), Color.Black);
+            spriteBatch.DrawString(font, "Health", new Vector2(310, 20), Color.Black);
 
             for (int i = 0; i < tankArr.Length; ++i)
             {
