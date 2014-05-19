@@ -90,7 +90,7 @@ namespace TankGame
         float turretRotationValue = 0;
         float cannonRotationValue = 0;
         float hatchRotationValue = 0;
-        Color[] colors = { Color.Pink, Color.Yellow, Color.Cyan, Color.LawnGreen, Color.Orange };
+        Color[] colors = { Color.Cyan, Color.Yellow, Color.DeepPink, Color.LawnGreen, Color.Orange };
 
         #endregion
 

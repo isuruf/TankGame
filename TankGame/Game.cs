@@ -37,16 +37,17 @@ namespace TankGame
         public static Tank tank;
         public static Tank[] tankArr = new Tank[5];
         public static int size = 20;
-        public static int offset=size-1;
+        public static int offset = size - 1;
 
         SpriteFont font;
         SpriteBatch spriteBatch;
         GraphicsDevice device;
         Effect effect;
         Texture2D sceneryTexture;
+        Texture2D backgroundTexture;
         Texture2D[] skyboxTextures;
         Model skyboxModel;
-        
+
         public static List<VertexPositionNormalTexture> buildingVerticesList;
         public static List<VertexPositionNormalTexture> verticesList;
         Viewport[] viewports = new Viewport[3];
@@ -54,16 +55,17 @@ namespace TankGame
         public double lastCommandTime = 0;
         public static float imagesInTexture = 11;
         public static int[,] floorPlan;
-        public static int[,] grid = new int[size,size];
-        int[] buildingHeights = new int[] {0,2,2};
+        public static int[,] grid = new int[size, size];
+        int[] buildingHeights = new int[] { 0, 2, 2 };
         public static Vector3 lightDirection = new Vector3(3, -2, 5);
         Matrix viewMatrix = Matrix.Identity;
         Matrix projectionMatrix;
         enum CollisionType { None, Building, Boundary, Target, Xwing };
         BoundingBox[] buildingBoundingBoxes;
+        Color[] colors = { Color.DarkBlue, Color.Yellow, Color.DeepPink, Color.DarkGreen, Color.DarkOrange };
         BoundingBox completeCityBox;
 
-        
+
 
         public static List<Bullet> bulletList = new List<Bullet>();
 
@@ -137,44 +139,44 @@ namespace TankGame
         protected override void LoadContent()
         {
             tankBrain = new GameLogic();
+
+            /*    processThread = new Thread(new ThreadStart(tankBrain.process));
+                processThread.Priority = ThreadPriority.Normal;
+                tankBrain.startGame();
+                tankBrain.waitGameStarted();
+                processThread.Start();
             
-        /*    processThread = new Thread(new ThreadStart(tankBrain.process));
-            processThread.Priority = ThreadPriority.Normal;
-            tankBrain.startGame();
-            tankBrain.waitGameStarted();
-            processThread.Start();
-            
-          */  
+              */
             spriteBatch = new SpriteBatch(GraphicsDevice);
             //skyboxModel = LoadModel("skybox", out skyboxTextures);
             device = graphics.GraphicsDevice;
-            
+
             effect = Content.Load<Effect>("effects");
             sceneryTexture = Content.Load<Texture2D>("texturemap");
             font = Content.Load<SpriteFont>("gameFont");
-            
+
             Tank.tankModel = Content.Load<Model>("tank");
             Bullet.bulletModel = Content.Load<Model>("bullet");
             Tank.Initialize();
 
-        //    tankBrain.initGrid();
-        //    tankBrain.initTanks();
+            //    tankBrain.initGrid();
+            //    tankBrain.initTanks();
             AI.init();
-            
-            tank = new Tank(5,3,0,4);
+
+            tank = new Tank(5, 3, 0, 4);
             for (int i = 0; i < 4; i++)
             {
-                tankArr[i] = new Tank(i,i,i,i);
+                tankArr[i] = new Tank(i, i, i, i);
             }
-            tankArr[4]=tank;
+            tankArr[4] = tank;
             brickList.Add(new Brick(10, 5));
             for (int i = 0; i < 5; i++)
                 tankArr[i].health = 1 / (i + 1f);
             Coin.coinModel = Content.Load<Model>("TyveKrone");
             Medikit.medikitModel = Content.Load<Model>("medikit");
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, device.Viewport.AspectRatio, 0.05f, 10000.0f);
-                
 
+            backgroundTexture = Content.Load<Texture2D>("background");
             SetUpVertices();
             //SetUpBoundingBoxes();
         }
@@ -182,23 +184,23 @@ namespace TankGame
         private void SetUpVertices()
         {
             int differentBuildings = buildingHeights.Length - 1;
-            
+
 
             int cityWidth = grid.GetLength(0);
             int cityLength = grid.GetLength(1);
 
 
             buildingVerticesList = new List<VertexPositionNormalTexture>();
-            for (int x = -2; x < cityWidth+2; x++)
+            for (int x = -2; x < cityWidth + 2; x++)
             {
-                for (int z = -2; z < cityLength+2; z++)
+                for (int z = -2; z < cityLength + 2; z++)
                 {
-                                
-                    int currentbuilding ;
-                    if(x<0||x>=cityWidth||z<0||z>=cityLength)
-                        currentbuilding=1;
+
+                    int currentbuilding;
+                    if (x < 0 || x >= cityWidth || z < 0 || z >= cityLength)
+                        currentbuilding = 1;
                     else
-                        currentbuilding= grid[x, z];
+                        currentbuilding = grid[x, z];
                     float currentheight = 1;
                     if (currentbuilding == 0 || currentbuilding == 4 || currentbuilding == 3)
                     {
@@ -215,7 +217,7 @@ namespace TankGame
                     buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, currentheight, -z - 1), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
                     buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, currentheight, -z - 1), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2 + 1) / imagesInTexture, 0)));
                     buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, currentheight, -z), new Vector3(0, 1, 0), new Vector2((currentbuilding * 2 + 1) / imagesInTexture, 1)));
-                    
+
                     if (currentheight != 0)
                     {
                         //floor
@@ -226,7 +228,7 @@ namespace TankGame
                         buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, 0, -z - 1), new Vector3(0, 1, 0), new Vector2(0, 0)));
                         buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, 0, -z - 1), new Vector3(0, 1, 0), new Vector2(1 / imagesInTexture, 0)));
                         buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, 0, -z), new Vector3(0, 1, 0), new Vector2(1 / imagesInTexture, 1)));
-                    
+
                         //front wall
                         buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, 0, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2) / imagesInTexture, 1)));
                         buildingVerticesList.Add(new VertexPositionNormalTexture(new Vector3(x1, currentheight, -z - 1), new Vector3(0, 0, -1), new Vector2((currentbuilding * 2 - 1) / imagesInTexture, 0)));
@@ -266,7 +268,7 @@ namespace TankGame
                 }
             }
 
-            
+
         }
 
         private void SetUpBoundingBoxes()
@@ -351,7 +353,7 @@ namespace TankGame
                 if (tankArr[i] != null)
                 {
                     tankArr[i].update();
-                    if(tankArr[i].health>0)
+                    if (tankArr[i].health > 0)
                         tankArr[i].checkCollisions();
                 }
             }
@@ -363,13 +365,13 @@ namespace TankGame
             //Console.WriteLine("time = " + time);
 
             UpdateCameras();
-            
+
             base.Update(gameTime);
         }
 
         public void updateCoins()
         {
-            for(int i = 0; i<coinList.Count(); ++i)
+            for (int i = 0; i < coinList.Count(); ++i)
             {
                 coinList.ElementAt(i).update(time);
             }
@@ -404,7 +406,7 @@ namespace TankGame
             float leftRightRot = 0;
             float upDownRot = 0;
 
-            
+
 
             if (keys.IsKeyDown(Keys.Right))
                 leftRightRot += 1;
@@ -415,7 +417,7 @@ namespace TankGame
             if (keys.IsKeyDown(Keys.Down))
                 upDownRot -= 1;
 
-            if (currentTime-lastCommandTime>900&&(
+            if (currentTime - lastCommandTime > 900 && (
                 keys.IsKeyDown(Keys.W) || keys.IsKeyDown(Keys.A) || keys.IsKeyDown(Keys.S) || keys.IsKeyDown(Keys.D)))
             {
                 if (keys.IsKeyDown(Keys.W))
@@ -438,32 +440,32 @@ namespace TankGame
                     leftRightRot += 2;
                     command = "DOWN#";
                 }
-                for(int i=0;i<60;i++)
+                for (int i = 0; i < 60; i++)
                     moveQueue.Enqueue(new Tuple<float, float>(leftRightRot, upDownRot));
                 lastCommandTime = currentTime;
             }
-            else if(moveQueue.Count==0)
-                moveQueue.Enqueue(new Tuple<float,float>(leftRightRot,upDownRot));
+            else if (moveQueue.Count == 0)
+                moveQueue.Enqueue(new Tuple<float, float>(leftRightRot, upDownRot));
 
             Move();
 
             if (keys.IsKeyDown(Keys.Space))
             {
-                
+
                 if (currentTime - tank.lastBulletTime > 500)
                 {
-                  //  Bullet newBullet = new Bullet(tank.tankPosition + Vector3.Transform(new Vector3(0, 0.17f, -0.05f),
+                    //  Bullet newBullet = new Bullet(tank.tankPosition + Vector3.Transform(new Vector3(0, 0.17f, -0.05f),
                     //    tank.tankRotation), tank.tankRotation, 3f * speed / 60.0f, tank.num,x,y,direction);
                     //bulletList.Add(newBullet);
                     tank.lastBulletTime = currentTime;
                 }
             }
 
-            
-            
-            
+
+
+
         }
-        
+
         public void Move()
         {
             if (moveQueue.Count != 0)
@@ -506,62 +508,72 @@ namespace TankGame
         {
             GraphicsDevice device = graphics.GraphicsDevice;
             device.Clear(Color.DarkGray);
-            
+
 
             float time = (float)gameTime.TotalGameTime.TotalSeconds;
             Matrix worldMatrix;
-            for (int i = 1; i >=0; i--)
-            {
-                verticesList = new List<VertexPositionNormalTexture>();
-           
-                graphics.GraphicsDevice.Viewport = viewports[i];
-                viewMatrix = Matrix.CreateLookAt(tank.cameraPosition[i], tank.tankPosition, tank.cameraUpDirection[i]);
-                worldMatrix = Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(tank.tankRotation) * Matrix.CreateTranslation(tank.tankPosition);
-                DrawTanks(tank.tankPosition - tank.cameraPosition[i], tank.cameraUpDirection[i], viewMatrix, 1, 1);
-                DrawBullets(viewMatrix, 0.008f);
-                DrawCoins(viewMatrix, 0.05f);
-                DrawMedikits(viewMatrix, 0.005f);
-                DrawBricks(tank.tankPosition - tank.cameraPosition[i], tank.cameraUpDirection[i],3);
-                DrawCity();
-                DrawText(tank);
+            //for (int i = 1; i >=0; i--)
+            //{
+            int i = 1;
+            verticesList = new List<VertexPositionNormalTexture>();
+
+            graphics.GraphicsDevice.Viewport = viewports[i];
+            viewMatrix = Matrix.CreateLookAt(tank.cameraPosition[i], tank.tankPosition, tank.cameraUpDirection[i]);
+            worldMatrix = Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(tank.tankRotation) * Matrix.CreateTranslation(tank.tankPosition);
+            DrawTanks(tank.tankPosition - tank.cameraPosition[i], tank.cameraUpDirection[i], viewMatrix, 1, 1);
+            DrawBullets(viewMatrix, 0.008f);
+            DrawCoins(viewMatrix, 0.05f);
+            DrawMedikits(viewMatrix, 0.005f);
+            DrawBricks(tank.tankPosition - tank.cameraPosition[i], tank.cameraUpDirection[i], 3);
+            DrawCity();
+            //if (i == 0)
+                graphics.GraphicsDevice.Viewport = viewports[0];
+                DrawText();
             //    DrawSkybox(tank.tankPosition);
-               
-               
-            }
-            
-            
-            verticesList = new List<VertexPositionNormalTexture>();          
+
+
+            // }
+
+
+            verticesList = new List<VertexPositionNormalTexture>();
             graphics.GraphicsDevice.Viewport = viewports[2];
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1, 0.2f, 10000.0f);
-            
-            Vector3 newCampos = new Vector3(Game1.size/2f, 3+1.2f*Game1.size, -Game1.size/2f);
-            Vector3 newCamup = new Vector3(0,0,1);
-            Vector3 newTarget = new Vector3(Game1.size /2f, 0, -Game1.size / 2f);
-            viewMatrix = Matrix.CreateLookAt(newCampos,newTarget,newCamup);
+
+            Vector3 newCampos = new Vector3(Game1.size / 2f, 3 + 1.2f * Game1.size, -Game1.size / 2f);
+            Vector3 newCamup = new Vector3(0, 0, 1);
+            Vector3 newTarget = new Vector3(Game1.size / 2f, 0, -Game1.size / 2f);
+            viewMatrix = Matrix.CreateLookAt(newCampos, newTarget, newCamup);
             worldMatrix = Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(tank.tankRotation) * Matrix.CreateTranslation(tank.tankPosition);
-            DrawTanks(newTarget- newCampos, newCamup, viewMatrix, 3f,7);
+            DrawTanks(newTarget - newCampos, newCamup, viewMatrix, 3f, 7);
             DrawBullets(viewMatrix, 0.05f);
             DrawCoins(viewMatrix, 0.3f);
             DrawMedikits(viewMatrix, 0.015f);
             DrawBricks(newTarget - newCampos, newCamup, 7);
             DrawCity();
-            DrawText(tank);
             base.Draw(gameTime);
         }
 
-        private void DrawText(Tank tank)
+        private void DrawText()
         {
-            GraphicsDevice.BlendState = BlendState.AlphaBlend; 
+            GraphicsDevice.BlendState = BlendState.AlphaBlend;
             spriteBatch.Begin();
-            int score = tank.score;
-            int coins = tank.coins;
+            spriteBatch.Draw(backgroundTexture, new Rectangle(0, 0,400,500), Color.White);
+            spriteBatch.DrawString(font, "Player", new Vector2(30, 20), Color.Red);
+            spriteBatch.DrawString(font, "Points", new Vector2(100, 20), Color.Red);
+            spriteBatch.DrawString(font, "Coins", new Vector2(200, 20), Color.Red);
+            spriteBatch.DrawString(font, "Health", new Vector2(310, 20), Color.Red);
 
-            spriteBatch.DrawString(font, "Score: " + score, new Vector2(20, 20), Color.Red);
-            spriteBatch.DrawString(font, "Coins: " + coins, new Vector2(20, 45), Color.Red);
+            for (int i = 0; i < tankArr.Length; ++i)
+            {
+                spriteBatch.DrawString(font, "" + tankArr[i].num, new Vector2(50, 25 * (i + 2)), colors[i]);
+                spriteBatch.DrawString(font, "" + tankArr[i].score, new Vector2(100, 25 * (i + 2)), colors[i]);
+                spriteBatch.DrawString(font, "" + tankArr[i].coins, new Vector2(200, 25 * (i + 2)), colors[i]);
+                spriteBatch.DrawString(font, "" + (Math.Round(tankArr[i].health * 100, 2)) + "%", new Vector2(310, 25 * (i + 2)), colors[i]);
+            }
             spriteBatch.End();
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap; 
+            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
         }
 
         private void DrawCity()
@@ -581,11 +593,11 @@ namespace TankGame
 
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
-               
+
                 pass.Apply();
                 device.SetVertexBuffer(cityVertexBuffer);
                 device.DrawPrimitives(PrimitiveType.TriangleList, 0, cityVertexBuffer.VertexCount / 3);
-                
+
                 //device.DrawUserPrimitives(PrimitiveType.TriangleList, verticesList.ToArray(), 0, verticesList.Count / 3,VertexPositionNormalTexture.VertexDeclaration);
             }
         }
@@ -595,14 +607,15 @@ namespace TankGame
         {
             for (int i = 0; i < 5; i++)
             {
-                if(tankArr[i]!=null)
-                tankArr[i].Draw(camera, camup, view, scale, barScale);
+                if (tankArr[i] != null)
+                    tankArr[i].Draw(camera, camup, view, scale, barScale);
             }
         }
 
         public void DrawBullets(Matrix viewMatrix, float scale)
         {
-            for (int i = 0; i < bulletList.Count; i++){
+            for (int i = 0; i < bulletList.Count; i++)
+            {
                 bulletList.ElementAt(i).Draw(viewMatrix, scale);
             }
         }
@@ -610,9 +623,9 @@ namespace TankGame
         {
             for (int i = 0; i < brickList.Count; i++)
             {
-                Brick brick= brickList.ElementAt(i);
+                Brick brick = brickList.ElementAt(i);
                 if (brick.health > 0)
-                    brick.AddToDraw(camera,camup,barScale);
+                    brick.AddToDraw(camera, camup, barScale);
             }
         }
 
@@ -666,7 +679,7 @@ namespace TankGame
         }
         #endregion
 
-       
+
     }
 
 
