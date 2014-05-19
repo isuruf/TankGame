@@ -447,9 +447,9 @@ namespace TankGame
                 
                 if (currentTime - tank.lastBulletTime > 500)
                 {
-                    Bullet newBullet = new Bullet(tank.tankPosition + Vector3.Transform(new Vector3(0, 0.17f, -0.05f),
-                        tank.tankRotation), tank.tankRotation, 3f * speed / 60.0f, tank.num);
-                    bulletList.Add(newBullet);
+                  //  Bullet newBullet = new Bullet(tank.tankPosition + Vector3.Transform(new Vector3(0, 0.17f, -0.05f),
+                    //    tank.tankRotation), tank.tankRotation, 3f * speed / 60.0f, tank.num,x,y,direction);
+                    //bulletList.Add(newBullet);
                     tank.lastBulletTime = currentTime;
                 }
             }

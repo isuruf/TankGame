@@ -93,7 +93,9 @@ namespace TankGame
             try
             {
                 //Creating listening Socket
-                this.listener = new TcpListener(IPAddress.Parse(Constant.Client_IP), Constant.CLIENT_PORT);
+                this.listener = new TcpListener(IPAddress.Any, Constant.CLIENT_PORT);
+
+                //this.listener = new TcpListener(IPAddress.Parse(Constant.Client_IP), Constant.CLIENT_PORT);
                 //this.listener = new TcpListener(IPAddress.Parse(serverIP), 7000);
                 //Starts listening
                 this.listener.Start();

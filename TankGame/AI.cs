@@ -84,6 +84,15 @@ namespace TankGame
             queue.Enqueue(new Tuple<coord, int>(cur, tank.direction));
             coord next;
             next = coArr[tank.x, tank.y];
+            for (int i = 0; i < Game1.bulletList.Count;i++)
+            {
+                Bullet bullet = Game1.bulletList.ElementAt(i);
+                float time = collisionTime(bullet, next);
+                if (time < 10)
+                {
+
+                }
+            }
             if(tank.health>0.5&&Game1.medikitList.Count>0){
                 for (int i = 0; i < 20; i++)
                 {
@@ -271,6 +280,60 @@ namespace TankGame
                     return i;
                 }
             return -1;
+        }
+        public static float collisionTime(Bullet bullet, coord tank)
+        {
+            int direction = bullet.direction;
+            if (direction == 0)
+            {
+                if (tank.x == bullet.x && tank.y >= bullet.y)
+                {
+                    for (int y = (int)Math.Ceiling(bullet.y); y < tank.y; y++)
+                    {
+                        if (gridOccupied[tank.x, y])
+                            return 1000;
+                    }
+                    return tank.y - bullet.y;
+                }
+            }
+            else if (direction == 1)
+            {
+                if (tank.y == bullet.y && tank.x >= bullet.x)
+                {
+                    for (int x = (int)Math.Ceiling(bullet.x); x < tank.x; x++)
+                    {
+                        if (gridOccupied[x, tank.y])
+                            return 1000;
+                    }
+                    return tank.y - bullet.y;
+                }
+            }
+            else if (direction == 2)
+            {
+                if (tank.x == bullet.x && tank.y <= bullet.y)
+                {
+                    for (int y = (int)Math.Floor(bullet.y); y > tank.y; y--)
+                    {
+                        if (gridOccupied[tank.x, y])
+                            return 1000;
+                    }
+                    return tank.y - bullet.y;
+                }
+            }
+            else if (direction == 3)
+            {
+                if (tank.y == bullet.y && tank.x <= bullet.x)
+                {
+                    for (int x = (int)Math.Floor(bullet.x); x > tank.x; x--)
+                    {
+                        if (gridOccupied[x, tank.y])
+                            return 1000;
+                    }
+                    return tank.y - bullet.y;
+                }
+            }
+            
+            return 10000;
         }
     }
     public class coord
