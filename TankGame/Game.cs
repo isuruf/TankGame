@@ -343,7 +343,7 @@ namespace TankGame
             ProcessKeyboard(gameTime);
             for (int i = 0; i < 5; i++)
             {
-                if (tankArr[i] != null)
+                if (tankArr[i] != null&&tankArr[i].health>0)
                 {
                     tankArr[i].update();
                     tankArr[i].checkCollisions();
@@ -446,9 +446,9 @@ namespace TankGame
                 
                 if (currentTime - tank.lastBulletTime > 500)
                 {
-                    Bullet newBullet = new Bullet(tank.tankPosition + Vector3.Transform(new Vector3(0, 0.17f, -0.05f),
-                        tank.tankRotation), tank.tankRotation, 3f * speed / 60.0f, tank.num);
-                    bulletList.Add(newBullet);
+                  //  Bullet newBullet = new Bullet(tank.tankPosition + Vector3.Transform(new Vector3(0, 0.17f, -0.05f),
+                    //    tank.tankRotation), tank.tankRotation, 3f * speed / 60.0f, tank.num,x,y,direction);
+                    //bulletList.Add(newBullet);
                     tank.lastBulletTime = currentTime;
                 }
             }
@@ -564,6 +564,7 @@ namespace TankGame
                
             }
             
+            
             verticesList = new List<VertexPositionNormalTexture>();          
             graphics.GraphicsDevice.Viewport = viewports[2];
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1, 0.2f, 10000.0f);
@@ -579,6 +580,7 @@ namespace TankGame
             DrawMedikits(viewMatrix, 0.015f);
             DrawBricks();
             DrawCity();
+            DrawText(tank);
             
             base.Draw(gameTime);
         }

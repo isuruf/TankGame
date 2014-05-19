@@ -80,6 +80,8 @@ namespace TankGame
         public void update(float health)
         {
             this.health = health;
+            if (health == 0)
+                Console.WriteLine("brick " + x + " " + y);
         }
     }
 }
