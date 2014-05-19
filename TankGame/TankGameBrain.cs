@@ -162,12 +162,13 @@ namespace TankGame
                     String[] status = brickHealth[i].Split(',');
                     int x = int.Parse(status[0]);
                     int y = int.Parse(status[1]);
-                    int health = int.Parse(status[2]);
+                    int health = 4-int.Parse(status[2]);
                     if (Game1.brickArray[x, y] != null)
                     {
                         Game1.brickArray[x, y].update(health);
                         if (health == 0)
                         {
+                            Debug.WriteLine("Removing brick at " + x + "," + y + " " + brickHealth[i]);
                             Game1.brickList.Remove(Game1.brickArray[x, y]);
                             Game1.brickArray[x, y] = null;
                         }

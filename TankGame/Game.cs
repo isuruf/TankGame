@@ -8,19 +8,19 @@
 #endregion
 
 #region Using Statements
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.GamerServices;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System.Linq;
-using System.Diagnostics;
-using Microsoft.Xna.Framework.GamerServices;
-using Microsoft.Xna.Framework.Media;
-using System.Threading;
 using System.Configuration;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
 #endregion
 
 namespace TankGame
@@ -39,17 +39,20 @@ namespace TankGame
         public static int size = 20;
         public static int offset=size-1;
 
+        SpriteFont font;
         SpriteBatch spriteBatch;
         GraphicsDevice device;
         Effect effect;
         Texture2D sceneryTexture;
+        Texture2D[] skyboxTextures;
+        Model skyboxModel;
         
         public static List<VertexPositionNormalTexture> buildingVerticesList;
         public static List<VertexPositionNormalTexture> verticesList;
         Viewport[] viewports = new Viewport[3];
         float speed = 1.0f;
         public double lastCommandTime = 0;
-        public static float imagesInTexture = 13;
+        public static float imagesInTexture = 11;
 
         public static int[,] floorPlan;
         public static int[,] grid = new int[size,size];
@@ -66,9 +69,7 @@ namespace TankGame
         BoundingBox[] buildingBoundingBoxes;
         BoundingBox completeCityBox;
 
-        public Vector3[] cameraPosition = new Vector3[3];
-        public Vector3[] cameraUpDirection = new Vector3[3];
-        Quaternion[] cameraRotation =new Quaternion[3];
+        
 
         public static List<Bullet> bulletList = new List<Bullet>();
 
@@ -128,11 +129,6 @@ namespace TankGame
             viewports[2].MinDepth = 0;
             viewports[2].MaxDepth = 1;
 
-            for (int i = 0; i < 3; i++)
-            {
-                cameraRotation[i] = Quaternion.Identity;
-            }
-
             lightDirection.Normalize();
 
 
@@ -156,11 +152,13 @@ namespace TankGame
             
             
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
+            //skyboxModel = LoadModel("skybox", out skyboxTextures);
             device = graphics.GraphicsDevice;
             
             effect = Content.Load<Effect>("effects");
             sceneryTexture = Content.Load<Texture2D>("texturemap");
+            font = Content.Load<SpriteFont>("gameFont");
+            
             Tank.tankModel = Content.Load<Model>("tank");
             Bullet.bulletModel = Content.Load<Model>("bullet");
             Tank.Initialize();
@@ -304,15 +302,14 @@ namespace TankGame
 
         }
 
-        private Model LoadModel(string assetName)
+        /*private Model LoadModel(string assetName)
         {
 
             Model newModel = Content.Load<Model>(assetName); foreach (ModelMesh mesh in newModel.Meshes)
                 foreach (ModelMeshPart meshPart in mesh.MeshParts)
                     meshPart.Effect = effect.Clone();
             return newModel;
-        }
-
+        }*/
         private Model LoadModel(string assetName, out Texture2D[] textures)
         {
 
@@ -325,8 +322,10 @@ namespace TankGame
 
             foreach (ModelMesh mesh in newModel.Meshes)
                 foreach (ModelMeshPart meshPart in mesh.MeshParts)
+                {
+                    //if(meshPart!=null&&effect!=null)
                     meshPart.Effect = effect.Clone();
-
+                }
 
             return newModel;
         }
@@ -370,7 +369,6 @@ namespace TankGame
             for(int i = 0; i<coinList.Count(); ++i)
             {
                 coinList.ElementAt(i).update(time);
-                //coin.;
             }
         }
         public void updateMedikits()
@@ -378,7 +376,6 @@ namespace TankGame
             for (int i = 0; i < medikitList.Count(); ++i)
             {
                 medikitList.ElementAt(i).update(time);
-                //coin.;
             }
         }
 
@@ -393,23 +390,7 @@ namespace TankGame
 
         public void UpdateCameras()
         {
-            for (int i = 0; i < 2; i++)
-            {
-                cameraRotation[i] = Quaternion.Lerp(cameraRotation[i], tank.tankRotation, 0.1f);
-                
-                Vector3 campos ;
-                if (i == 0)
-                    campos = new Vector3(0, 0.2f, -0.9f);
-                else
-                    campos = new Vector3(0, 0.2f, 0.9f);
-                campos = Vector3.Transform(campos, Matrix.CreateFromQuaternion(cameraRotation[i]));
-                campos += tank.tankPosition;
-
-                Vector3 camup = new Vector3(0, 1.0f, 0);
-                camup = Vector3.Transform(camup, Matrix.CreateFromQuaternion(cameraRotation[i]));
-                cameraPosition[i] = campos;
-                cameraUpDirection[i] = camup;
-            }
+            tank.UpdateCameras();
         }
         private void ProcessKeyboard(GameTime gameTime)
         {
@@ -561,6 +542,7 @@ namespace TankGame
 
             device.Clear(Color.DarkGray);
             
+            
 
             // Calculate the camera matrices.
             float time = (float)gameTime.TotalGameTime.TotalSeconds;
@@ -570,17 +552,19 @@ namespace TankGame
                 verticesList = new List<VertexPositionNormalTexture>();
            
                 graphics.GraphicsDevice.Viewport = viewports[i];
-                viewMatrix = Matrix.CreateLookAt(cameraPosition[i], tank.tankPosition, cameraUpDirection[i]);
+                viewMatrix = Matrix.CreateLookAt(tank.cameraPosition[i], tank.tankPosition, tank.cameraUpDirection[i]);
                 worldMatrix = Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(tank.tankRotation) * Matrix.CreateTranslation(tank.tankPosition);
-                DrawTanks(tank.tankPosition - cameraPosition[i], cameraUpDirection[i], viewMatrix, 1, 1);
+                DrawTanks(tank.tankPosition - tank.cameraPosition[i], tank.cameraUpDirection[i], viewMatrix, 1, 1);
                 DrawBullets(viewMatrix, 0.008f);
                 DrawCoins(viewMatrix, 0.05f);
                 DrawMedikits(viewMatrix, 0.005f);
                 DrawBricks();
                 DrawCity();
-                //Debug.WriteLine("count"+verticesList.Count+" "+i);
-               // DrawBullet(worldMatrix * Matrix.CreateTranslation(0, 0.17f,-pos), viewMatrix, projectionMatrix, 0.008f);
+            //    DrawSkybox(tank.tankPosition);
+               
+               
             }
+            
             verticesList = new List<VertexPositionNormalTexture>();          
             graphics.GraphicsDevice.Viewport = viewports[2];
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1, 0.2f, 10000.0f);
@@ -596,9 +580,18 @@ namespace TankGame
             DrawMedikits(viewMatrix, 0.015f);
             DrawBricks();
             DrawCity();
-            //DrawBullet(worldMatrix * Matrix.CreateTranslation(0, 0.2f, -pos), viewMatrix, projectionMatrix, 0.015f);
-
+            
             base.Draw(gameTime);
+        }
+        private void DrawText(Tank tank)
+        {
+            spriteBatch.Begin();
+            int score = tank.score;
+            int coins = tank.coins;
+
+            spriteBatch.DrawString(font, "Score: " + score, new Vector2(20, 20), Color.Red);
+            spriteBatch.DrawString(font, "Coins: " + coins, new Vector2(20, 45), Color.Red);
+            spriteBatch.End();
         }
         private void DrawCity()
         {
@@ -660,6 +653,38 @@ namespace TankGame
             }
         }
 
+        private void DrawSkybox(Vector3 position)
+        {
+            SamplerState ss = new SamplerState();
+            ss.AddressU = TextureAddressMode.Clamp;
+            ss.AddressV = TextureAddressMode.Clamp;
+            device.SamplerStates[0] = ss;
+
+            DepthStencilState dss = new DepthStencilState();
+            dss.DepthBufferEnable = false;
+            device.DepthStencilState = dss;
+
+            Matrix[] skyboxTransforms = new Matrix[skyboxModel.Bones.Count];
+            skyboxModel.CopyAbsoluteBoneTransformsTo(skyboxTransforms);
+            int i = 0;
+            foreach (ModelMesh mesh in skyboxModel.Meshes)
+            {
+                foreach (Effect currentEffect in mesh.Effects)
+                {
+                    Matrix worldMatrix = skyboxTransforms[mesh.ParentBone.Index] * Microsoft.Xna.Framework.Matrix.CreateTranslation(position);
+                    currentEffect.CurrentTechnique = currentEffect.Techniques["Textured"];
+                    currentEffect.Parameters["xWorld"].SetValue(worldMatrix);
+                    currentEffect.Parameters["xView"].SetValue(viewMatrix);
+                    currentEffect.Parameters["xProjection"].SetValue(projectionMatrix);
+                    currentEffect.Parameters["xTexture"].SetValue(skyboxTextures[i++]);
+                }
+                mesh.Draw();
+            }
+
+            dss = new DepthStencilState();
+            dss.DepthBufferEnable = true;
+            device.DepthStencilState = dss;
+        }
         #endregion
 
        
