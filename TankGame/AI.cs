@@ -78,24 +78,40 @@ namespace TankGame
                     stuffArray[Game1.tankArr[j].x, Game1.tankArr[j].y] = 3;
                 }
             }
-
+            //for(int i=0;
             coord cur = coArr[tank.x, tank.y];
             cur.length[tank.direction] = 1;
             queue.Enqueue(new Tuple<coord, int>(cur, tank.direction));
             coord next;
             next = coArr[tank.x, tank.y];
-            for (int i = 0; i < 3; i++)
-            {
-                next = next.getNext(tank.direction);
-                if (next == null)
-                    break;
-                if (stuffArray[next.x, next.y] == 3)
+            if(tank.health>0.5&&Game1.medikitList.Count>0){
+                for (int i = 0; i < 20; i++)
                 {
-                    Debug.WriteLine("shooting tank");
-                    return message[4];
+                    next = next.getNext(tank.direction);
+                    if (next == null||Game1.grid[next.x,next.y]==2)
+                        break;
+                    if (stuffArray[next.x, next.y] == 3)
+                    {
+                        Debug.WriteLine("shooting tank");
+                        return message[4];
+                    }
+                }
+                for (int di = 0; di < 4; di++)
+                {
+                    next = coArr[tank.x, tank.y];
+                    for (int i = 0; i < 20; i++)
+                    {
+                        next = next.getNext(di);
+                        if (next == null || Game1.grid[next.x, next.y] == 2)
+                            break;
+                        if (stuffArray[next.x, next.y] == 3)
+                        {
+                            Debug.WriteLine("shooting tank");
+                            return message[di];
+                        }
+                    }
                 }
             }
-            
             int maxLength = 0;
             int medikitdir = -1;
             int tankdir = -1;
@@ -105,8 +121,8 @@ namespace TankGame
                 Tuple<coord, int> t = queue.Dequeue();
                 coord c = t.Item1;
                 int dir = t.Item2;
-                if (stuffArray[c.x, c.y]==1||(stuffArray[c.x,c.y]==2&&medikitdir==-1)
-                    || (stuffArray[c.x, c.y] == 3 && tankdir == -1))
+                if (c!=coArr[tank.x,tank.y]&&(stuffArray[c.x, c.y]==1||(stuffArray[c.x,c.y]==2&&medikitdir==-1)
+                    || (stuffArray[c.x, c.y] == 3 && tankdir == -1)))
                 {
                     
                     int length = c.getLength();
@@ -221,13 +237,13 @@ namespace TankGame
             }
            
             
-            int dist = Math.Abs(tank.x - 3*size / 8) + Math.Abs(tank.y - size / 2);
+            int dist = Math.Abs(tank.x - 2*size / 4) + Math.Abs(tank.y - size / 2);
             for (int i = 0; i < 4; i++)
             {
                 next = coArr[tank.x, tank.y].getNext(i);
                 if (next == null)
                     continue;
-                int dist2=Math.Abs(next.x - 3*size /8 ) + Math.Abs(next.y - size / 2);
+                int dist2=Math.Abs(next.x - 2*size /4 ) + Math.Abs(next.y - size / 2);
                 if (!gridOccupied[next.x, next.y]&&dist2<dist)
                 {
                     Debug.WriteLine("Going to middle");

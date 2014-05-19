@@ -90,7 +90,7 @@ namespace TankGame
         float turretRotationValue = 0;
         float cannonRotationValue = 0;
         float hatchRotationValue = 0;
-
+        Color[] colors = { Color.Pink, Color.Yellow, Color.Cyan, Color.LawnGreen, Color.Orange };
 
         #endregion
 
@@ -309,9 +309,9 @@ namespace TankGame
                     effect.Parameters["World"].SetValue(boneTransforms[mesh.ParentBone.Index]);
                     effect.Parameters["eyePosition"].SetValue(camera);
                     effect.Parameters["lightPosition"].SetValue(Game1.lightDirection);
-                    effect.Parameters["ambientColor"].SetValue(Color.DarkGray.ToVector4());
-                    effect.Parameters["diffuseColor"].SetValue(Color.White.ToVector4());
-                    effect.Parameters["specularColor"].SetValue(Color.White.ToVector4());
+                    effect.Parameters["ambientColor"].SetValue(colors[num].ToVector4());
+                    effect.Parameters["diffuseColor"].SetValue(colors[num].ToVector4());
+                    effect.Parameters["specularColor"].SetValue(colors[num].ToVector4());
                     effect.Parameters["specularPower"].SetValue(50);
                     /*
                     effect.World = boneTransforms[mesh.ParentBone.Index];
@@ -399,7 +399,7 @@ namespace TankGame
             if (shot == 1)
             {
                 Bullet newBullet = new Bullet(tankPosition + Vector3.Transform(new Vector3(0, 0.17f, -0.05f),
-                    tankRotation), tankRotation, 3f / 60.0f, num);
+                    tankRotation), tankRotation, 3f / 60.0f, num,x,y,direction);
                 Game1.bulletList.Add(newBullet);
             }
 

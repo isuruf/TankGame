@@ -16,21 +16,35 @@ namespace TankGame
         public float speed;
         public int tankNum;
         public BoundingSphere sphere;
+        public float x, y;
+        public int direction;
  //       public int player;
 
         public void MoveForward()
         {
+
             Vector3 addVector = Vector3.Transform(new Vector3(0, 0, -1), rotation);
             position += addVector * speed;
             sphere.Center = new Vector3(position.X,0.5f,position.Z);
+            if (direction == 0)
+                y -= 4f / 60f;
+            else if (direction == 1)
+                x += 4f / 60f;
+            else if (direction == 2)
+                y += 4f / 60f;
+            else
+                x -= 4f / 60f;
         }
-        public Bullet(Vector3 position, Quaternion rotation, float speed, int tankNum)
+        public Bullet(Vector3 position, Quaternion rotation, float speed, int tankNum,float x, float y,int direction)
         {
             this.position = position;
             this.rotation = rotation;
             this.speed = speed;
             this.tankNum = tankNum;
             sphere = new BoundingSphere(new Vector3(position.X,0.5f,position.Z), 0.35f);
+            this.x = x;
+            this.y = y;
+            this.direction = direction;
 //            this.player = player;
         }
         public void Draw(Matrix view,float scale)

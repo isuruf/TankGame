@@ -55,7 +55,7 @@ namespace TankGame
             Matrix world = Matrix.CreateRotationX(MathHelper.Pi / 2) * Matrix.CreateRotationY(MathHelper.ToRadians(angle)) * Matrix.CreateTranslation(position);
 
             
-            coinModel.Root.Transform = Matrix.CreateScale(scale, scale, scale) * world;
+            coinModel.Root.Transform = Matrix.CreateScale(scale, scale*4, scale) * world;
 
             coinModel.CopyAbsoluteBoneTransformsTo(boneTransforms);
 
