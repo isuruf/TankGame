@@ -16,30 +16,31 @@ namespace TankGame
         public float speed;
         public int tankNum;
         public BoundingSphere sphere;
- //       public int player;
 
         public void MoveForward()
         {
             Vector3 addVector = Vector3.Transform(new Vector3(0, 0, -1), rotation);
             position += addVector * speed;
-            sphere.Center = new Vector3(position.X,0.5f,position.Z);
+            sphere.Center = new Vector3(position.X, 0.5f, position.Z);
         }
+
         public Bullet(Vector3 position, Quaternion rotation, float speed, int tankNum)
         {
             this.position = position;
             this.rotation = rotation;
             this.speed = speed;
             this.tankNum = tankNum;
-            sphere = new BoundingSphere(new Vector3(position.X,0.5f,position.Z), 0.35f);
-//            this.player = player;
+            sphere = new BoundingSphere(new Vector3(position.X, 0.5f, position.Z), 0.35f);
+            //            this.player = player;
         }
-        public void Draw(Matrix view,float scale)
+
+        public void Draw(Matrix view, float scale)
         {
             Matrix[] boneTransforms = new Matrix[bulletModel.Bones.Count];
             Matrix projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1, 0.2f, 10000.0f);
-            Matrix world = Matrix.CreateRotationY(MathHelper.Pi/2) * Matrix.CreateFromQuaternion(rotation) * Matrix.CreateTranslation(position);
+            Matrix world = Matrix.CreateRotationY(MathHelper.Pi / 2) * Matrix.CreateFromQuaternion(rotation) * Matrix.CreateTranslation(position);
 
-            
+
             bulletModel.Root.Transform = Matrix.CreateScale(scale, scale, scale) * world;
 
             bulletModel.CopyAbsoluteBoneTransformsTo(boneTransforms);
@@ -67,7 +68,7 @@ namespace TankGame
                 if (Game1.tankArr[i] != null && Game1.tankArr[i].sphere.Contains(this.sphere) != ContainmentType.Disjoint)
                 {
                     //Debug.WriteLine("Medikit removed " + Game1.medikitList.ElementAt(i).x + " " + Game1.medikitList.ElementAt(i).y);
-                    if(Game1.tankArr[i].num != tankNum)
+                    if (Game1.tankArr[i].num != tankNum)
                         Game1.bulletList.Remove(this);
                 }
             }

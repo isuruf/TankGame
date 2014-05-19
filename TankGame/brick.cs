@@ -10,7 +10,7 @@ namespace TankGame
 {
     public class Brick
     {
-        public int health;
+        public float health;
         public int x, y;
         public BoundingSphere sphere;
 
@@ -77,7 +77,7 @@ namespace TankGame
                 Game1.verticesList.Add(new VertexPositionNormalTexture(new Vector3(x1 + 1, currentheight, -z), new Vector3(1, 0, 0), new Vector2((currentbuilding * 2) / imagesInTexture, 0)));
             
         }
-        public void update(int health)
+        public void update(float health)
         {
             this.health = health;
         }

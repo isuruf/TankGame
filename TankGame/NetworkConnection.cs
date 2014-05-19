@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
@@ -19,7 +18,7 @@ namespace TankGame
         private NetworkStream serverStream; //Stream - incoming        
         private TcpListener listener; //To listen to the clinets        
         public string reply = ""; //The message to be written
-        
+
         private DataObject lastReply = null;
         private String lastError;
         private String lastVariableUpdate;
@@ -30,7 +29,7 @@ namespace TankGame
         private String SMsg;
         public int turn = 0;
         private String Imsg;
-        private Boolean connection=false;
+        private Boolean connection = false;
         private Boolean newGMsg = false;
         private Boolean newGMsg2 = false;
         #endregion
@@ -41,10 +40,9 @@ namespace TankGame
             lastLifePack = new List<string>();
         }
 
-        public void SendData(object stateInfo)   //used when sendind data
+        public void sendData(object stateInfo)   //used when sendind data
         {
             DataObject dataObj = (DataObject)stateInfo;
-            //Opening the connection
             this.client = new TcpClient();
 
             try
@@ -56,16 +54,12 @@ namespace TankGame
 
                     if (this.client.Connected)
                     {
-                        //To write to the socket
                         this.clientStream = client.GetStream();
 
-                        //Create objects for writing across stream
                         this.writer = new BinaryWriter(clientStream);
                         Byte[] tempStr = Encoding.ASCII.GetBytes(dataObj.MSG);
 
-                        //writing to the port                
                         this.writer.Write(tempStr);
-                        //Console.WriteLine("\t Data: " + dataObj.MSG + " is written to " + dataObj.ClientMachine + " on " + dataObj.ClientPort);
                         connection = true;
                         this.writer.Close();
                         this.clientStream.Close();
@@ -75,38 +69,29 @@ namespace TankGame
             }
             catch (Exception e)
             {
-                Console.WriteLine("Communication (WRITING) to " + dataObj.ClientMachine + " on " + dataObj.ClientPort + "Failed! \n " + e.Message);                
+                Console.WriteLine("Communication (WRITING) to " + dataObj.ClientMachine + " on " + dataObj.ClientPort + "Failed! \n " + e.Message);
                 connection = false;
             }
             finally
             {
-                this.client.Close();                
+                this.client.Close();
             }
         }
 
-
-        public void ReceiveData()   // allways rus and listen for msgs
+        public void receiveData()
         {
             bool errorOcurred = false;
-            Socket connection = null; //The socket that is listened to       
-            DataObject dataObj=null;
+            Socket connection = null;
+            DataObject dataObj = null;
             try
             {
-                //Creating listening Socket
                 this.listener = new TcpListener(IPAddress.Parse(Constant.Client_IP), Constant.CLIENT_PORT);
-                //this.listener = new TcpListener(IPAddress.Parse(serverIP), 7000);
-                //Starts listening
                 this.listener.Start();
-                //Establish connection upon client request
-                
-                //int i = 0;
                 while (true)
                 {
-                    //connection is connected socket
                     connection = listener.AcceptSocket();
                     if (connection.Connected)
                     {
-                        //To read from socket create NetworkStream object associated with socket
                         this.serverStream = new NetworkStream(connection);
 
                         SocketAddress sockAdd = connection.RemoteEndPoint.Serialize();
@@ -115,29 +100,20 @@ namespace TankGame
 
                         int asw = 0;
                         while (asw != -1)
-                        {                         
+                        {
                             asw = this.serverStream.ReadByte();
-                            inputStr.Add((Byte)asw);                         
+                            inputStr.Add((Byte)asw);
                         }
 
                         reply = Encoding.UTF8.GetString(inputStr.ToArray());
                         this.serverStream.Close();
                         string ip = s.Substring(0, s.IndexOf(":"));
                         int port = Constant.CLIENT_PORT;
-                        /*try
-                        {
-                            string ss = reply.Substring(0, reply.IndexOf(";"));
-                            port = Convert.ToInt32(ss);
-                        }
-                        catch (Exception)
-                        {
-                            port = 7000;//Constant.CLIENT_PORT;
-                        }*/
-                        //Console.WriteLine(ip + ": " + reply.Substring(0, reply.Length - 1));
+
                         dataObj = new DataObject(reply.Substring(0, reply.Length - 1), ip, port);
                         lastReply = dataObj;
-                        //Console.WriteLine(lastReply.MSG+" xyz "+Game1.time);
-                        if(lastReply.MSG.StartsWith("G:")){
+                        if (lastReply.MSG.StartsWith("G:"))
+                        {
                             newGMsg = true;
                             newGMsg2 = true;
                             turn++;
@@ -163,10 +139,8 @@ namespace TankGame
                         }
                         else
                         {
-                            lastError=lastReply.MSG;
+                            lastError = lastReply.MSG;
                         }
-                        //ThreadPool.QueueUserWorkItem(new WaitCallback(GameEngine.Resolve), (object)dataObj);
-                        //i++;
                         Thread.Sleep(90);
                     }
                 }
@@ -182,39 +156,26 @@ namespace TankGame
                 if (connection != null)
                     if (connection.Connected)
                     {
-                        connection.Close();                     
+                        connection.Close();
                     }
-                //listener.Stop();
                 if (errorOcurred)
                 {
-                    this.ReceiveData();
+                    this.receiveData();
                 }
-                
+
             }
-            //return dataObj;
-        }
-        public DataObject giveLastReply()
-        {
-            return lastReply;
-        }
-        public String giveLastError()
-        {
-            String s=null;
-            if(lastError!=null && lastError.Length>=1)
-                s = (String)lastError.Substring(0,lastError.Length-1);
-            lastError = null;
-            return s;
         }
 
-        public String giveSMsg()
+        public String returnSMsg()
         {
             String s = null;
-            if(SMsg!=null)
-                s = (String)SMsg.Clone() ;
+            if (SMsg != null)
+                s = (String)SMsg.Clone();
             SMsg = null;
             return s;
         }
-        public String giveLastCoin()
+
+        public String returnLastCoin()
         {
             if (lastCoin.Count != 0)
             {
@@ -223,9 +184,10 @@ namespace TankGame
                 return s;
             }
             else
-                return null;     
+                return null;
         }
-        public String giveLastLifePack()
+
+        public String returnLastMedikit()
         {
             if (lastLifePack.Count != 0)
             {
@@ -238,11 +200,13 @@ namespace TankGame
                 return null;
             }
         }
-        public String giveLastGmsg()
+
+        public String returnLastGmsg()
         {
             newGMsg = false;
-            return lastVariableUpdate;            
+            return lastVariableUpdate;
         }
+
         public Boolean isNewGMsg()
         {
             if (newGMsg)
@@ -255,23 +219,12 @@ namespace TankGame
                 return false;
             }
         }
-        public Boolean isNewGMsg2()
-        {
-            if (newGMsg2)
-            {
-                newGMsg2 = false;
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        public String giveIMsg()
+
+        public String returnIMsg()
         {
             return Imsg;
         }
-        public Boolean connectionAvailability()
+        public Boolean isConnectionAvailable()
         {
             return connection;
         }

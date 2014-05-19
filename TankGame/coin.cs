@@ -12,11 +12,11 @@ namespace TankGame
     {
         public static Model coinModel;
         public Vector3 position;
-        public int value, x, y; 
+        public int value, x, y;
         public float liveTime;
         public float deadTime;
         public float speed;
-        public float angle=0;
+        public float angle = 0;
         public Quaternion initRotation = new Quaternion(1, 0, 0, (float)Math.Cos(7 * MathHelper.Pi / 12));
         public BoundingSphere sphere;
 
@@ -26,9 +26,10 @@ namespace TankGame
             this.speed = speed;
             sphere = new BoundingSphere(position, 0.5f);
         }
+
         public Coin(int x, int y, int value, float liveTime)
         {
-            this.position = new Vector3(Game1.size-x-0.5f,0.2f,-y-0.5f);
+            this.position = new Vector3(Game1.size - x - 0.5f, 0.2f, -y - 0.5f);
             this.x = x;
             this.y = y;
             this.value = value;
@@ -41,20 +42,20 @@ namespace TankGame
         public void update(float currentTime)
         {
             float remainingTime = (deadTime - currentTime);
-            if (remainingTime<6000)
-                this.speed = MathHelper.ToRadians(20f+(6000-remainingTime)/20f);
+            if (remainingTime < 6000)
+                this.speed = MathHelper.ToRadians(20f + (6000 - remainingTime) / 20f);
             if (remainingTime <= 0)
                 Game1.coinList.Remove(this);
-            angle+=speed;
+            angle += speed;
         }
 
-        public void Draw(Matrix view,float scale)
+        public void Draw(Matrix view, float scale)
         {
             Matrix[] boneTransforms = new Matrix[coinModel.Bones.Count];
             Matrix projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1, 0.2f, 10000.0f);
             Matrix world = Matrix.CreateRotationX(MathHelper.Pi / 2) * Matrix.CreateRotationY(MathHelper.ToRadians(angle)) * Matrix.CreateTranslation(position);
 
-            
+
             coinModel.Root.Transform = Matrix.CreateScale(scale, scale, scale) * world;
 
             coinModel.CopyAbsoluteBoneTransformsTo(boneTransforms);
