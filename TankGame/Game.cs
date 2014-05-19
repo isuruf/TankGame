@@ -347,7 +347,7 @@ namespace TankGame
             ProcessKeyboard(gameTime);
             for (int i = 0; i < 5; i++)
             {
-                if (tankArr[i] != null)
+                if (tankArr[i] != null&&tankArr[i].health>0)
                 {
                     tankArr[i].update();
                     tankArr[i].checkCollisions();
@@ -565,6 +565,7 @@ namespace TankGame
                
             }
             
+            
             verticesList = new List<VertexPositionNormalTexture>();          
             graphics.GraphicsDevice.Viewport = viewports[2];
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1, 0.2f, 10000.0f);
@@ -580,6 +581,7 @@ namespace TankGame
             DrawMedikits(viewMatrix, 0.015f);
             DrawBricks();
             DrawCity();
+            DrawText(tank);
             
             base.Draw(gameTime);
         }

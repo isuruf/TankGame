@@ -391,6 +391,7 @@ namespace TankGame
             {
                 Game1.coinList.Add(new Coin(this.x, this.y, this.coins / 2, 5000));
                 deadcoin = true;
+                
             }
             this.health = health;
             this.score = score;
