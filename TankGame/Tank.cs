@@ -255,15 +255,16 @@ namespace TankGame
                 image = 11;
             else
                 image = 10 + health;
-
-            float imagesInTexture = Game1.imagesInTexture;
+            image = 10.5f;
+            float imagesInTexture = Game1.imagesInTexture+0f;
+            Console.WriteLine("tank: " + num + "Img: " + image + "frac: " + image / imagesInTexture);
             Game1.verticesList.Add(new VertexPositionNormalTexture(position + length + height, new Vector3(0, 0, 1), new Vector2(image / imagesInTexture, 1)));
             Game1.verticesList.Add(new VertexPositionNormalTexture(position + length - height, new Vector3(0, 0, 1), new Vector2((image) / imagesInTexture, 0)));
-            Game1.verticesList.Add(new VertexPositionNormalTexture(position - length + height, new Vector3(0, 0, 1), new Vector2((image + 1) / imagesInTexture, 1)));
+            Game1.verticesList.Add(new VertexPositionNormalTexture(position - length + height, new Vector3(0, 0, 1), new Vector2((image + 1f) / imagesInTexture, 1)));
 
             Game1.verticesList.Add(new VertexPositionNormalTexture(position + length - height, new Vector3(0, 0, 1), new Vector2((image) / imagesInTexture, 0)));
-            Game1.verticesList.Add(new VertexPositionNormalTexture(position - length - height, new Vector3(0, 0, 1), new Vector2((image + 1) / imagesInTexture, 0)));
-            Game1.verticesList.Add(new VertexPositionNormalTexture(position - length + height, new Vector3(0, 0, 1), new Vector2((image + 1) / imagesInTexture, 1)));
+            Game1.verticesList.Add(new VertexPositionNormalTexture(position - length - height, new Vector3(0, 0, 1), new Vector2((image + 1f) / imagesInTexture, 0)));
+            Game1.verticesList.Add(new VertexPositionNormalTexture(position - length + height, new Vector3(0, 0, 1), new Vector2((image + 1f) / imagesInTexture, 1)));
 
             Matrix projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1, 0.2f, 10000.0f);
             Matrix world = Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(tankRotation) * Matrix.CreateTranslation(tankPosition);
@@ -395,7 +396,7 @@ namespace TankGame
             }
             this.health = health;
             this.score = score;
-            
+            Debug.WriteLine("tank"+num+" "+health);
 
             if (shot == 1)
             {

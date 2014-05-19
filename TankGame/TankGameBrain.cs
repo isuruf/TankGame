@@ -6,11 +6,11 @@ using Microsoft.Xna.Framework;
 namespace TankGame
 {
     class TankGameBrain
-    {        
-        
+    {
+
         private NetworkConnection conn;
         private Thread reciveThread;
-        private ErrorHandler eHandler;
+       // private ErrorHandler eHandler;
         private AI ai = new AI();
         private bool finished;
         private int playerName;
@@ -18,10 +18,10 @@ namespace TankGame
 
         public TankGameBrain()
         {
-            conn = new NetworkConnection();            
-            reciveThread = new Thread(new ThreadStart(conn.ReceiveData));
+            conn = new NetworkConnection();
+            reciveThread = new Thread(new ThreadStart(conn.receiveData));
             reciveThread.Priority = ThreadPriority.Highest;
-            eHandler = new ErrorHandler(conn);
+           // eHandler = new ErrorHandler(conn);
             finished = false;
         }
         public void startGame()
@@ -29,18 +29,18 @@ namespace TankGame
             reciveThread.Start();
             do
             {
-                conn.SendData(new DataObject("JOIN#", Constant.SERVER_IP, Constant.SERVER_PORT));
+                conn.sendData(new DataObject("JOIN#", Constant.SERVER_IP, Constant.SERVER_PORT));
                 Thread.Sleep(4057);
-            } while (!conn.connectionAvailability());   //loop until server starts listning to clients
+            } while (!conn.isConnectionAvailable());   //loop until server starts listning to clients
             Console.WriteLine("joined");
             while (!conn.gameIAccepted)
             {
                 Thread.Sleep(200);
-                if (eHandler.giveJoinError() != null)
+                //if (eHandler.giveJoinError() != null)
                 {
-                    return; ///a code to gui to display join error
+                    //return; ///a code to gui to display join error
                 }
-            }  
+            }
         }
 
         public void waitGameStarted()
@@ -52,7 +52,7 @@ namespace TankGame
             }
             //gHandler.loadGrid();
             //aiHandler.loadPlayers();
-            
+
         }
         public bool isGameStarted()
         {
@@ -61,7 +61,7 @@ namespace TankGame
         public void initGrid()
         {
             while (!conn.gameIAccepted) { };
-            String Imessage = conn.giveIMsg();
+            String Imessage = conn.returnIMsg();
             Imessage = Imessage.Substring(0, Imessage.Length - 1);
             String[] IMsg = Imessage.Split(':');
             //String msgType = IMsg[0];
@@ -76,7 +76,7 @@ namespace TankGame
                 int x = int.Parse(coordinates[0]);
                 int y = int.Parse(coordinates[1]);
                 Game1.grid[x, y] = 3;//Bricks are zeros
-                Brick tempBrick = new Brick(x,y);
+                Brick tempBrick = new Brick(x, y);
                 Game1.brickList.Add(tempBrick);
                 Game1.brickArray[x, y] = tempBrick;
             }
@@ -86,7 +86,7 @@ namespace TankGame
                 String[] coordinates = stoneLocations[i].Split(',');
                 int x = int.Parse(coordinates[0]);
                 int y = int.Parse(coordinates[1]);
-                Game1.stoneList.Add(new BoundingSphere(new Vector3(Game1.size-x-0.5f,0.5f,-y-0.5f),0.5f));
+                Game1.stoneList.Add(new BoundingSphere(new Vector3(Game1.size - x - 0.5f, 0.5f, -y - 0.5f), 0.5f));
                 Game1.grid[x, y] = 2;//Stones are ones
             }
 
@@ -103,10 +103,10 @@ namespace TankGame
         {
 
             while (!conn.gameSAccepted) { };
-            String Smessage = conn.giveSMsg();
+            String Smessage = conn.returnSMsg();
             Debug.WriteLine("Smessage " + Smessage);
-            Debug.WriteLine("Imessage " + conn.giveIMsg());
-            Debug.WriteLine(Smessage.Length-1);
+            Debug.WriteLine("Imessage " + conn.returnIMsg());
+            Debug.WriteLine(Smessage.Length - 1);
             Smessage = Smessage.Substring(2, Smessage.Length - 3);
             String[] SMsg = Smessage.Split(':');
             //String msgType = IMsg[0];
@@ -123,7 +123,7 @@ namespace TankGame
                 int x = int.Parse(coordinates[0]);
                 int y = int.Parse(coordinates[1]);
                 int direction = int.Parse(playerData[2]);
-                Game1.tankArr[playerNum] = new Tank(x,y,direction,playerNum);
+                Game1.tankArr[playerNum] = new Tank(x, y, direction, playerNum);
                 if (playerNum == this.playerName)
                     Game1.tank = Game1.tankArr[playerNum];
 
@@ -132,54 +132,53 @@ namespace TankGame
 
         public void updateGrid()
         {
-            if (conn.isNewGMsg())
+            String Gmessage = conn.returnLastGmsg();
+            
+            Gmessage = Gmessage.Substring(2, Gmessage.Length - 3);
+            String[] GMsg = Gmessage.Split(':');
+            //String msgType = IMsg[0];
+
+
+            for (int i = 0; i < GMsg.Length - 1; ++i)
             {
-                String Gmessage = conn.giveLastGmsg();
-                Gmessage = Gmessage.Substring(2, Gmessage.Length - 3);
-                String[] GMsg = Gmessage.Split(':');
-                //String msgType = IMsg[0];
+                String[] playerData = GMsg[i].Split(';');
+                int playerNum = int.Parse(playerData[0].Substring(1));
+                String[] coordinates = playerData[1].Split(',');
 
+                int x = int.Parse(coordinates[0]);
+                int y = int.Parse(coordinates[1]);
+                int direction = int.Parse(playerData[2]);
+                int shot = int.Parse(playerData[3]);
+                float health = int.Parse(playerData[4]) / 100f;
+                int coins = int.Parse(playerData[5]);
+                int score = int.Parse(playerData[6]);
 
-                for (int i = 0; i < GMsg.Length - 1; ++i)
+                Game1.tankArr[playerNum].updatePosition(x, y, direction, shot, score, coins, health);
+            }
+            String[] brickHealth = GMsg[GMsg.Length - 1].Split(';');
+            for (int i = 0; i < brickHealth.Length; ++i)
+            {
+                String[] status = brickHealth[i].Split(',');
+                int x = int.Parse(status[0]);
+                int y = int.Parse(status[1]);
+                float health = (int.Parse(status[2])) / 4f;
+                if (Game1.brickArray[x, y] != null)
                 {
-                    String[] playerData = GMsg[i].Split(';');
-                    int playerNum = int.Parse(playerData[0].Substring(1));
-                    String[] coordinates = playerData[1].Split(',');
-
-                    int x = int.Parse(coordinates[0]);
-                    int y = int.Parse(coordinates[1]);
-                    int direction = int.Parse(playerData[2]);
-                    int shot = int.Parse(playerData[3]);
-                    int health = int.Parse(playerData[4]);
-                    int coins = int.Parse(playerData[5]);
-                    int score = int.Parse(playerData[6]);
-
-                    Game1.tankArr[playerNum].updatePosition(x, y, direction, shot, score, coins, health / 4);
-                }
-                String[] brickHealth = GMsg[GMsg.Length - 1].Split(';');
-                for (int i = 0; i < brickHealth.Length; ++i)
-                {
-                    String[] status = brickHealth[i].Split(',');
-                    int x = int.Parse(status[0]);
-                    int y = int.Parse(status[1]);
-                    int health = 4-int.Parse(status[2]);
-                    if (Game1.brickArray[x, y] != null)
+                    Game1.brickArray[x, y].update(health);
+                    if (health == 0)
                     {
-                        Game1.brickArray[x, y].update(health);
-                        if (health == 0)
-                        {
-                            Debug.WriteLine("Removing brick at " + x + "," + y + " " + brickHealth[i]);
-                            Game1.brickList.Remove(Game1.brickArray[x, y]);
-                            Game1.brickArray[x, y] = null;
-                        }
+                        Debug.WriteLine("Removing brick at " + x + "," + y + " " + brickHealth[i]);
+                        Game1.brickList.Remove(Game1.brickArray[x, y]);
+                        Game1.brickArray[x, y] = null;
                     }
                 }
             }
+
         }
 
         public void placeCoins()
         {
-            String Cmessage = conn.giveLastCoin();
+            String Cmessage = conn.returnLastCoin();
             if (Cmessage != null)
             {
                 Cmessage = Cmessage.Substring(2, Cmessage.Length - 3);
@@ -204,7 +203,7 @@ namespace TankGame
 
         public void placeMedikits()
         {
-            String Lmessage = conn.giveLastLifePack();
+            String Lmessage = conn.returnLastMedikit();
             if (Lmessage != null)
             {
                 Lmessage = Lmessage.Substring(2, Lmessage.Length - 3);
@@ -224,44 +223,39 @@ namespace TankGame
 
         public void process()
         {
-            updateGrid();
+            //updateGrid();
 
-           
-            String command ="SHOOT#";
+
+            String command = "SHOOT#";
             if (conn.gameSAccepted && Game1.tank != null)
                 command = AI.nextCommand(Game1.tank);
-            while (!eHandler.isGameFinished())
+            while (true)
             {
-                if (!eHandler.isMyPlayerDead())
+                if (true)
                 {
                     if (command != Constant.STOP)
                     {
                         //if (!conn.isNewGMsg())
                         //{
-                            conn.SendData(new DataObject(command, Constant.SERVER_IP, Constant.SERVER_PORT));
-                            //Thread.Sleep(1000);
+                        conn.sendData(new DataObject(command, Constant.SERVER_IP, Constant.SERVER_PORT));
+                        //Thread.Sleep(1000);
                         //}
                     }
-                    if (eHandler.giveMovingShootingError() == Constant.S2C_TOOEARLY)
+                    /*if (eHandler.giveMovingShootingError() == Constant.S2C_TOOEARLY)
                     {
                         Random sleepTime = new Random();
                         Thread.Sleep(sleepTime.Next(1, 25));
                         Console.WriteLine("Wait random time to resend=====================================================");
                         continue;
-                    }
+                    }*/
                 }
-                if (eHandler.isGameFinished())
-                {
-                    finished = true;
-                    break;///display in gui
-                    //throw new GameFinishedException();
-                }
-                while (!conn.isNewGMsg2())
+                
+                while (!conn.isNewGMsg())
                 {
                 }
                 //watch.Stop();
                 //var elapsedMs = watch.ElapsedMilliseconds;
-                
+
                 Debug.WriteLine("turn " + conn.turn);
                 command = "SHOOT#";
                 if (conn.gameSAccepted && Game1.tank != null)
@@ -270,9 +264,9 @@ namespace TankGame
                     updateGrid();
                     command = AI.nextCommand(Game1.tank);
                     watch.Stop();
-                    Debug.WriteLine("time-elapsed "+watch.ElapsedMilliseconds);
+                    Debug.WriteLine("time-elapsed " + watch.ElapsedMilliseconds);
                 }
-                
+
             }
 
         }
@@ -282,7 +276,7 @@ namespace TankGame
         }
         public Boolean isCommunicationAvailabel()
         {
-            return conn.connectionAvailability();
+            return conn.isConnectionAvailable();
         }
     }
 }

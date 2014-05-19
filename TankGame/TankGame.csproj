@@ -129,7 +129,6 @@
     <Compile Include="coin.cs" />
     <Compile Include="Constant.cs" />
     <Compile Include="DataObject.cs" />
-    <Compile Include="ErrorHandler.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="medikit.cs" />
     <Compile Include="NetworkConnection.cs" />

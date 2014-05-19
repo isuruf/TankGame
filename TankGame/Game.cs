@@ -53,18 +53,12 @@ namespace TankGame
         float speed = 1.0f;
         public double lastCommandTime = 0;
         public static float imagesInTexture = 11;
-
         public static int[,] floorPlan;
         public static int[,] grid = new int[size,size];
-
         int[] buildingHeights = new int[] {0,2,2};
         public static Vector3 lightDirection = new Vector3(3, -2, 5);
-        
-
         Matrix viewMatrix = Matrix.Identity;
         Matrix projectionMatrix;
-    
-
         enum CollisionType { None, Building, Boundary, Target, Xwing };
         BoundingBox[] buildingBoundingBoxes;
         BoundingBox completeCityBox;
@@ -269,6 +263,7 @@ namespace TankGame
 
             
         }
+
         private void SetUpBoundingBoxes()
         {
             int cityWidth = floorPlan.GetLength(0);
@@ -310,6 +305,7 @@ namespace TankGame
                     meshPart.Effect = effect.Clone();
             return newModel;
         }*/
+
         private Model LoadModel(string assetName, out Texture2D[] textures)
         {
 
@@ -364,6 +360,7 @@ namespace TankGame
             
             base.Update(gameTime);
         }
+
         public void updateCoins()
         {
             for(int i = 0; i<coinList.Count(); ++i)
@@ -371,6 +368,7 @@ namespace TankGame
                 coinList.ElementAt(i).update(time);
             }
         }
+
         public void updateMedikits()
         {
             for (int i = 0; i < medikitList.Count(); ++i)
@@ -392,6 +390,7 @@ namespace TankGame
         {
             tank.UpdateCameras();
         }
+
         private void ProcessKeyboard(GameTime gameTime)
         {
             KeyboardState keys = Keyboard.GetState();
@@ -585,6 +584,7 @@ namespace TankGame
             
             base.Draw(gameTime);
         }
+
         private void DrawText(Tank tank)
         {
             spriteBatch.Begin();
@@ -595,6 +595,7 @@ namespace TankGame
             spriteBatch.DrawString(font, "Coins: " + coins, new Vector2(20, 45), Color.Red);
             spriteBatch.End();
         }
+
         private void DrawCity()
         {
             verticesList.AddRange(buildingVerticesList);
@@ -617,6 +618,7 @@ namespace TankGame
                 device.DrawPrimitives(PrimitiveType.TriangleList, 0, cityVertexBuffer.VertexCount / 3);
             }
         }
+
         public void DrawTanks(Vector3 camera, Vector3 camup, Matrix view, float scale, float barScale)
         {
             for (int i = 0; i < 5; i++)
@@ -625,12 +627,14 @@ namespace TankGame
                 tankArr[i].Draw(camera, camup, view, scale, barScale);
             }
         }
+
         public void DrawBullets(Matrix viewMatrix, float scale)
         {
             for (int i = 0; i < bulletList.Count; i++){
                 bulletList.ElementAt(i).Draw(viewMatrix, scale);
             }
         }
+
         public void DrawBricks()
         {
             for (int i = 0; i < brickList.Count; i++)
@@ -640,6 +644,7 @@ namespace TankGame
                     brick.AddToDraw();
             }
         }
+
         public void DrawCoins(Matrix viewMatrix, float scale)
         {
             for (int i = 0; i < coinList.Count; i++)
@@ -647,6 +652,7 @@ namespace TankGame
                 coinList.ElementAt(i).Draw(viewMatrix, scale);
             }
         }
+
         public void DrawMedikits(Matrix viewMatrix, float scale)
         {
             for (int i = 0; i < medikitList.Count; i++)

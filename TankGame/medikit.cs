@@ -12,21 +12,19 @@ namespace TankGame
     {
         public static Model medikitModel;
         public Vector3 position;
-        public int x,y;
+        public int x, y;
         public float liveTime;
         public float deadTime;
         public float speed;
         public float angle = 0;
         public Quaternion initRotation = new Quaternion(1, 0, 0, (float)Math.Cos(7 * MathHelper.Pi / 12));
         public BoundingSphere sphere;
-        //       public int player;
 
         public Medikit(Vector3 position, float speed)
         {
             this.position = position;
             this.speed = speed;
             sphere = new BoundingSphere(position, 0.5f);
-            //            this.player = player;
         }
         public Medikit(int x, int y, float liveTime)
         {

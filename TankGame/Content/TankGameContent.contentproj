@@ -106,6 +106,7 @@
       <Name>20kr_2003</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_ResizeToPowerOfTwo>True</ProcessorParameters_ResizeToPowerOfTwo>
     </Compile>
     <Compile Include="effects.fx">
       <Name>effects</Name>

@@ -19,7 +19,6 @@ namespace TankGame
         public float x, y;
         public int direction;
  //       public int player;
-
         public void MoveForward()
         {
 
@@ -41,19 +40,19 @@ namespace TankGame
             this.rotation = rotation;
             this.speed = speed;
             this.tankNum = tankNum;
-            sphere = new BoundingSphere(new Vector3(position.X,0.5f,position.Z), 0.35f);
             this.x = x;
             this.y = y;
             this.direction = direction;
-//            this.player = player;
+            sphere = new BoundingSphere(new Vector3(position.X, 0.5f, position.Z), 0.35f);
         }
-        public void Draw(Matrix view,float scale)
+
+        public void Draw(Matrix view, float scale)
         {
             Matrix[] boneTransforms = new Matrix[bulletModel.Bones.Count];
             Matrix projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1, 0.2f, 10000.0f);
-            Matrix world = Matrix.CreateRotationY(MathHelper.Pi/2) * Matrix.CreateFromQuaternion(rotation) * Matrix.CreateTranslation(position);
+            Matrix world = Matrix.CreateRotationY(MathHelper.Pi / 2) * Matrix.CreateFromQuaternion(rotation) * Matrix.CreateTranslation(position);
 
-            
+
             bulletModel.Root.Transform = Matrix.CreateScale(scale, scale, scale) * world;
 
             bulletModel.CopyAbsoluteBoneTransformsTo(boneTransforms);
@@ -81,7 +80,7 @@ namespace TankGame
                 if (Game1.tankArr[i] != null && Game1.tankArr[i].sphere.Contains(this.sphere) != ContainmentType.Disjoint)
                 {
                     //Debug.WriteLine("Medikit removed " + Game1.medikitList.ElementAt(i).x + " " + Game1.medikitList.ElementAt(i).y);
-                    if(Game1.tankArr[i].num != tankNum)
+                    if (Game1.tankArr[i].num != tankNum)
                         Game1.bulletList.Remove(this);
                 }
             }
