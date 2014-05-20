@@ -146,10 +146,11 @@ namespace TankGame
             
           */  
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            //skyboxModel = LoadModel("skybox", out skyboxTextures);
+            
             device = graphics.GraphicsDevice;
             
             effect = Content.Load<Effect>("effects");
+            skyboxModel = LoadModel("skybox", out skyboxTextures);
             sceneryTexture = Content.Load<Texture2D>("texturemap");
             font = Content.Load<SpriteFont>("gameFont");
             
@@ -324,7 +325,6 @@ namespace TankGame
             foreach (ModelMesh mesh in newModel.Meshes)
                 foreach (ModelMeshPart meshPart in mesh.MeshParts)
                 {
-                    //if(meshPart!=null&&effect!=null)
                     meshPart.Effect = effect.Clone();
                 }
 
@@ -513,10 +513,12 @@ namespace TankGame
             for (int i = 1; i >=0; i--)
             {
                 verticesList = new List<VertexPositionNormalTexture>();
-           
+            
                 graphics.GraphicsDevice.Viewport = viewports[i];
+
                 viewMatrix = Matrix.CreateLookAt(tank.cameraPosition[i], tank.tankPosition, tank.cameraUpDirection[i]);
                 worldMatrix = Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(tank.tankRotation) * Matrix.CreateTranslation(tank.tankPosition);
+                DrawSkybox(tank.tankPosition);
                 DrawTanks(tank.tankPosition - tank.cameraPosition[i], tank.cameraUpDirection[i], viewMatrix, 1, 1);
                 DrawBullets(viewMatrix, 0.008f);
                 DrawCoins(viewMatrix, 0.05f);
@@ -524,7 +526,7 @@ namespace TankGame
                 DrawBricks(tank.tankPosition - tank.cameraPosition[i], tank.cameraUpDirection[i],3);
                 DrawCity();
                 DrawText(tank);
-            //    DrawSkybox(tank.tankPosition);
+                
                
                
             }
@@ -650,7 +652,7 @@ namespace TankGame
             {
                 foreach (Effect currentEffect in mesh.Effects)
                 {
-                    Matrix worldMatrix = skyboxTransforms[mesh.ParentBone.Index] * Microsoft.Xna.Framework.Matrix.CreateTranslation(position);
+                    Matrix worldMatrix = skyboxTransforms[mesh.ParentBone.Index] * Matrix.CreateTranslation(position);
                     currentEffect.CurrentTechnique = currentEffect.Techniques["Textured"];
                     currentEffect.Parameters["xWorld"].SetValue(worldMatrix);
                     currentEffect.Parameters["xView"].SetValue(viewMatrix);

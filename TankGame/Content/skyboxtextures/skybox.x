@@ -171,7 +171,7 @@ Mesh Unnamed_0 {
      1.000000;1.000000;1.000000;;
        0.000000;0.000000;0.000000;;
           TextureFilename {
-      "SkyBox_Top.jpg";
+      "skybox_top.jpg";
      }
      }
  }
@@ -217,7 +217,7 @@ Mesh Unnamed_1 {
      1.000000;1.000000;1.000000;;
        0.000000;0.000000;0.000000;;
           TextureFilename {
-      "SkyBox_Right.jpg";
+      "skybox_right.jpg";
      }
      }
  }
@@ -264,7 +264,7 @@ Mesh Unnamed_2 {
      1.000000;1.000000;1.000000;;
        0.000000;0.000000;0.000000;;
           TextureFilename {
-      "SkyBox_Left.jpg";
+      "skybox_left.jpg";
      }
      }
  }
@@ -311,7 +311,7 @@ Mesh Unnamed_3 {
      1.000000;1.000000;1.000000;;
        0.000000;0.000000;0.000000;;
           TextureFilename {
-      "SkyBox_Front.jpg";
+      "skybox_front.jpg";
      }
      }
  }
@@ -358,7 +358,7 @@ Mesh Unnamed_4 {
      1.000000;1.000000;1.000000;;
        0.000000;0.000000;0.000000;;
           TextureFilename {
-      "SkyBox_Back.jpg";
+      "skybox_back.jpg";
      }
      }
  }
@@ -405,7 +405,7 @@ Mesh Unnamed_5 {
      1.000000;1.000000;1.000000;;
        0.000000;0.000000;0.000000;;
           TextureFilename {
-      "SkyBox_Bottom.jpg";
+      "skybox_back.jpg";
      }
      }
  }
