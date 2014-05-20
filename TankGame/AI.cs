@@ -19,8 +19,6 @@ namespace TankGame
         public static coord[,] coArr = new coord[size, size];
         public static Boolean[,] gridOccupied = new Boolean[size, size];
         public static int[,] stuffArray = new int[size, size];
-        static coord nextcoin;
-        static int nextCoinCost = 1000;
         public AI()
         {
 
@@ -84,7 +82,8 @@ namespace TankGame
             queue.Enqueue(new Tuple<coord, int>(cur, tank.direction));
             coord next;
             next = coArr[tank.x, tank.y];
-            if(collisionTime(next)==1000){
+            int bulletdir=collisionTime(next);
+            if(bulletdir!=1000){
                 next= next.getNext(tank.direction);
 
                 if (next!=null&&collisionTime(next) != 1000&&!gridOccupied[next.x,next.y])
@@ -94,7 +93,27 @@ namespace TankGame
                 }
                 else
                 {
-
+                    if (tank.health > 0.5)
+                    {
+                        Debug.WriteLine("Facing bullet");
+                        return message[(bulletdir + 2) % 4];
+                    }
+                    else
+                    {
+                        for (int i = 0; i < 4; i++)
+                        {
+                            if (i == tank.direction)
+                                continue;
+                            next = coArr[tank.x, tank.y].getNext(i);
+                            if (next != null && collisionTime(next) != 1000 && !gridOccupied[next.x, next.y]
+                                &&stuffArray[next.x,next.y]!=3
+                                )
+                            {
+                                Debug.WriteLine("Avoiding bullet by rotating.");
+                                return message[i];
+                            }
+                        }
+                    }
                 }
             }
             next = coArr[tank.x, tank.y];
@@ -286,14 +305,14 @@ namespace TankGame
                 }
             return -1;
         }
-        public static float collisionTime(coord tank)
+        public static int collisionTime(coord tank)
         {
-            float time =1000;
+            int time =1000;
             for (int i = 0; i < Game1.bulletList.Count; i++)
             {
                 float temp = collisionTime(Game1.bulletList.ElementAt(i),tank);
-                if (temp < time)
-                    time=temp;
+                if (temp < 1000)
+                    return Game1.bulletList.ElementAt(i).direction;
             }
             return time;
         }

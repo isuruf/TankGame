@@ -205,8 +205,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="skybox_bottom.JPG">
-      <Name>skybox_bottom</Name>
+    <Compile Include="background.jpg">
+      <Name>background</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
