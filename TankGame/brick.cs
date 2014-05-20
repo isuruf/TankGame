@@ -40,7 +40,6 @@ namespace TankGame
                 image = 10;
             else
                 image = 9 + health;
-            image = 9.5f;
             float imagesInTexture = Game1.imagesInTexture + 0f;
 
             Game1.verticesList.Add(new VertexPositionNormalTexture(position + length + height, new Vector3(0, 0, 1), new Vector2(image / imagesInTexture, 1)));

@@ -141,14 +141,14 @@ namespace TankGame
         protected override void LoadContent()
         {
             tankBrain = new GameLogic();
-
-            /*    processThread = new Thread(new ThreadStart(tankBrain.process));
+            
+                processThread = new Thread(new ThreadStart(tankBrain.process));
                 processThread.Priority = ThreadPriority.Normal;
                 tankBrain.startGame();
                 tankBrain.waitGameStarted();
                 processThread.Start();
             
-              */
+              
             spriteBatch = new SpriteBatch(GraphicsDevice);
             
             device = graphics.GraphicsDevice;
@@ -162,10 +162,10 @@ namespace TankGame
             Bullet.bulletModel = Content.Load<Model>("bullet");
             Tank.Initialize();
 
-            //    tankBrain.initGrid();
-            //    tankBrain.initTanks();
+               tankBrain.initGrid();
+               tankBrain.initTanks();
             AI.init();
-
+            /*
             tank = new Tank(5, 3, 0, 4);
             for (int i = 0; i < 4; i++)
             {
@@ -175,6 +175,7 @@ namespace TankGame
             brickList.Add(new Brick(10, 5));
             for (int i = 0; i < 5; i++)
                 tankArr[i].health = 1 / (i + 1f);
+            */
             Coin.coinModel = Content.Load<Model>("TyveKrone");
             Medikit.medikitModel = Content.Load<Model>("medikit");
             drawTank = tank;
@@ -206,7 +207,9 @@ namespace TankGame
                     else
                         currentbuilding = grid[x, z];
                     float currentheight = 1;
-                    if (currentbuilding == 0 || currentbuilding == 4 || currentbuilding == 3)
+                    if (currentbuilding == 3)
+                        currentbuilding = 0;
+                    if (currentbuilding == 0 || currentbuilding == 4)
                     {
                         currentheight = 0;
                     }
@@ -548,7 +551,7 @@ namespace TankGame
 
             graphics.GraphicsDevice.Viewport = viewports[1];
             int i = forwardCamera;
-            DrawSkybox(drawTank.tankPosition);
+            DrawSkybox(drawTank);
             viewMatrix = Matrix.CreateLookAt(drawTank.cameraPosition[i], drawTank.tankPosition, drawTank.cameraUpDirection[i]);
             worldMatrix = Matrix.CreateRotationY(MathHelper.Pi) * Matrix.CreateFromQuaternion(drawTank.tankRotation) * Matrix.CreateTranslation(drawTank.tankPosition);
             DrawTanks(drawTank.tankPosition - drawTank.cameraPosition[i], drawTank.cameraUpDirection[i], viewMatrix, 1, 1);
@@ -594,12 +597,15 @@ namespace TankGame
             spriteBatch.DrawString(font, "Coins", new Vector2(200, 20), Color.Black);
             spriteBatch.DrawString(font, "Health", new Vector2(310, 20), Color.Black);
 
-            for (int i = 0; i < tankArr.Length; ++i)
+            for (int i = 0; i < 5; ++i)
             {
-                spriteBatch.DrawString(font, "" + tankArr[i].num, new Vector2(50, 25 * (i + 2)), colors[i]);
-                spriteBatch.DrawString(font, "" + tankArr[i].score, new Vector2(100, 25 * (i + 2)), colors[i]);
-                spriteBatch.DrawString(font, "" + tankArr[i].coins, new Vector2(200, 25 * (i + 2)), colors[i]);
-                spriteBatch.DrawString(font, "" + (Math.Round(tankArr[i].health * 100, 2)) + "%", new Vector2(310, 25 * (i + 2)), colors[i]);
+                if(tankArr[i]!=null)
+                {
+                    spriteBatch.DrawString(font, "" + tankArr[i].num, new Vector2(50, 25 * (i + 2)), colors[i]);
+                    spriteBatch.DrawString(font, "" + tankArr[i].score, new Vector2(100, 25 * (i + 2)), colors[i]);
+                    spriteBatch.DrawString(font, "" + tankArr[i].coins, new Vector2(200, 25 * (i + 2)), colors[i]);
+                    spriteBatch.DrawString(font, "" + (Math.Round(tankArr[i].health * 100, 2)) + "%", new Vector2(310, 25 * (i + 2)), colors[i]);
+                }
             }
             spriteBatch.End();
             GraphicsDevice.BlendState = BlendState.Opaque;
@@ -676,7 +682,7 @@ namespace TankGame
             }
         }
 
-        private void DrawSkybox(Vector3 position)
+        private void DrawSkybox(Tank tank)
         {
             SamplerState ss = new SamplerState();
             ss.AddressU = TextureAddressMode.Clamp;
@@ -694,7 +700,7 @@ namespace TankGame
             {
                 foreach (Effect currentEffect in mesh.Effects)
                 {
-                    Matrix worldMatrix = skyboxTransforms[mesh.ParentBone.Index] * Matrix.CreateTranslation(position);
+                    Matrix worldMatrix = skyboxTransforms[mesh.ParentBone.Index] * Matrix.CreateTranslation(tank.tankPosition);
                     currentEffect.CurrentTechnique = currentEffect.Techniques["Textured"];
                     currentEffect.Parameters["xWorld"].SetValue(worldMatrix);
                     currentEffect.Parameters["xView"].SetValue(viewMatrix);

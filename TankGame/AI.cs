@@ -86,26 +86,21 @@ namespace TankGame
             if(bulletdir!=1000){
                 next= next.getNext(tank.direction);
 
-                if (next!=null&&collisionTime(next) != 1000&&!gridOccupied[next.x,next.y])
+                if (next!=null&&collisionTime(next) == 1000&&!gridOccupied[next.x,next.y])
                 {
                     Debug.WriteLine("Avoiding bullet");
                     return message[tank.direction];
                 }
-                else
+                else 
                 {
-                    if (tank.health > 0.5)
-                    {
-                        Debug.WriteLine("Facing bullet");
-                        return message[(bulletdir + 2) % 4];
-                    }
-                    else
+                    if (tank.health <= 0.5)
                     {
                         for (int i = 0; i < 4; i++)
                         {
                             if (i == tank.direction)
                                 continue;
                             next = coArr[tank.x, tank.y].getNext(i);
-                            if (next != null && collisionTime(next) != 1000 && !gridOccupied[next.x, next.y]
+                            if (next != null && collisionTime(next) == 1000 && !gridOccupied[next.x, next.y]
                                 &&stuffArray[next.x,next.y]!=3
                                 )
                             {
@@ -148,6 +143,7 @@ namespace TankGame
             int maxLength = 0;
             int medikitdir = -1;
             int tankdir = -1;
+            int coindir = -1;
             while (queue.Count != 0&&maxLength<=100)
             {
                 
@@ -182,6 +178,9 @@ namespace TankGame
                             if (stuffArray[c.x, c.y] == 2)
                             {
                                 medikitdir = nextdir;
+                                if (tank.health < 0.8)
+                                    return message[nextdir];
+                                    
                             }
                             else if(stuffArray[c.x, c.y] == 1)
                             {
@@ -194,6 +193,9 @@ namespace TankGame
                                     }
                                     Debug.WriteLine("");
                                 }*/
+
+                                coindir = nextdir;
+                                if(tank.health>0.8)
                                     return message[nextdir];
                             }
                             else if (stuffArray[c.x, c.y] == 3)
@@ -319,52 +321,56 @@ namespace TankGame
         public static float collisionTime(Bullet bullet, coord tank)
         {
             int direction = bullet.direction;
-            if (direction == 0)
+            if (direction == 2)
             {
-                if (tank.x == bullet.x && tank.y >= bullet.y)
+                if (tank.x == bullet.x && tank.y > bullet.y)
                 {
                     for (int y = (int)Math.Ceiling(bullet.y); y < tank.y; y++)
                     {
                         if (y >= 0 && y < Game1.size && gridOccupied[tank.x, y])
                             return 1000;
                     }
+                    Debug.WriteLine("bullet hitting in y direction " + bullet.y);
                     return tank.y - bullet.y;
                 }
             }
             else if (direction == 1)
             {
-                if (tank.y == bullet.y && tank.x >= bullet.x)
+                if (tank.y == bullet.y && tank.x > bullet.x)
                 {
                     for (int x = (int)Math.Ceiling(bullet.x); x < tank.x; x++)
                     {
                         if (x >= 0 && x < Game1.size && gridOccupied[x, tank.y])
                             return 1000;
                     }
-                    return tank.y - bullet.y;
+                    Debug.WriteLine("bullet hitting in x direction " + bullet.x);
+                    return tank.x - bullet.x;
                 }
             }
-            else if (direction == 2)
+            else if (direction == 0)
             {
-                if (tank.x == bullet.x && tank.y <= bullet.y)
+                if (tank.x == bullet.x && tank.y < bullet.y)
                 {
                     for (int y = (int)Math.Floor(bullet.y); y > tank.y; y--)
                     {
                         if (y>=0&&y<Game1.size&&gridOccupied[tank.x, y])
                             return 1000;
                     }
-                    return tank.y - bullet.y;
+                    Debug.WriteLine("bullet hitting in -y direction "+bullet.y);
+                    return -tank.y + bullet.y;
                 }
             }
             else if (direction == 3)
             {
-                if (tank.y == bullet.y && tank.x <= bullet.x)
+                if (tank.y == bullet.y && tank.x < bullet.x)
                 {
                     for (int x = (int)Math.Floor(bullet.x); x > tank.x; x--)
                     {
                         if (x >= 0 && x < Game1.size && gridOccupied[x, tank.y])
                             return 1000;
                     }
-                    return tank.y - bullet.y;
+                    Debug.WriteLine("bullet hitting in -x direction "+bullet.x);
+                    return -tank.x + bullet.x;
                 }
             }
             

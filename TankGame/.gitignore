@@ -1,0 +1,10 @@
+*.suo
+*.cachefile
+*.exe
+*.xnb
+*.pnb
+TankGame/obj/
+TankGame/bin/
+TankGame/Content/obj/
+TankGame/Content/bin/
+*.db
